@@ -34,7 +34,52 @@ graph TD
 
     style Physical_Layer fill:#f9f9f9,stroke:#333,stroke-width:1px
     style Firmware_Pipeline fill:#f5f7fa,stroke:#0052cc,stroke-width:1px
-2.1 Hardware Layer (PCB Design Constraints)Form Factor: Compact, wearable proportions utilizing low-profile SMD/SMT components.Microcontroller: Target STM32 ARM Cortex-M4 MCU (leveraging the FPU for efficient DSP execution).Audio Acquisition: High-SNR MEMS Microphone interface utilizing native I2S bus.Power Management: Battery-operated design (LiPo) with dedicated power-delivery network (PDN), ultra-low-power sleep states management, and integrated charging circuitry.Actuation Drivers: Low-side MOSFET switch configuration for a high-efficiency eccentric rotating mass (ERM) or linear resonant actuator (LRA) vibrator motor, and PWM-controlled LED notification array.2.2 Firmware & Software ArchitectureDrivers & Abstraction: Built on top of STM32Cube HAL y raw CMSIS core registers for deterministic hardware control.Concurrency: Bare-metal scheduling optimized through hardware interrupts (ISRs) and Direct Memory Access (DMA) transfers to prevent CPU starvation during heavy audio streaming.DSP Pipeline: * Audio chunks are collected via a Ping-Pong buffer mechanism (Half-Transfer & Transfer-Complete DMA interrupts).Windowing (Hann/Hamming) and Fast Fourier Transform (FFT) or Mel-Frequency Cepstral Coefficients (MFCC) generation using optimized CMSIS-DSP functions.TinyML Inference Engine: * Model architectures sourced and optimized from the STMicroelectronics Model Zoo.Quantization ($INT8$) and compilation for edge-execution utilizing STM32Cube.AI to minimize Flash and RAM footprint.3. Anticipated Technical RoadmapPhase 1: Research & Architectural Definition (Current)[ ] Finalize selection of the specific STM32 microcontroller and peripheral ICs.[ ] Define acoustic feature extraction pipelines (Sampling frequency, frame length, overlap).[ ] Establish baseline dataset requirements for relevant sound events (e.g., alarms, doorbells, traffic sirens).Phase 2: TinyML & DSP Modeling[ ] Train and quantize the Audio Event Detection model using Python frameworks.[ ] Validate floating-point vs fixed-point implementation performance.[ ] Benchmark execution cycles using STM32Cube.AI tools.Phase 3: Hardware & Firmware Development[ ] Schematic capture and PCB layout optimization for signal integrity (audio traces shield/isolation).[ ] Implement low-level peripheral configuration (I2S, DMA, TIM-PWM, UART for telemetry).[ ] Integrate CMSIS-DSP routines with the TinyML inference library.Phase 4: Validation & Integration[ ] Unit testing execution for core DSP functions.[ ] Hardware-in-the-Loop (HIL) injection testing of raw audio vectors to evaluate accuracy under realistic hardware power profiles.4. Development Tools & StackHardware Design: KiCad / Altium Designer.Firmware IDE: STM32CubeIDE / VS Code with STM32 VS Code Extension.Libraries: STM32Cube MCU Packages (HAL/LL), CMSIS-DSP, CMSIS-NN.Machine Learning Compiler: STM32Cube.AI Core.Telemetry & Scripts: Python 3.x for auxiliary testing and data parsing.
-***
+```
 
-###
+### 2.1 Hardware Layer (PCB Design Constraints)
+* **Form Factor:** Compact, wearable proportions utilizing low-profile SMD/SMT components.
+* **Microcontroller:** Target STM32 ARM Cortex-M4 MCU (leveraging the FPU for efficient DSP execution).
+* **Audio Acquisition:** High-SNR MEMS Microphone interface utilizing native I2S bus.
+* **Power Management:** Battery-operated design (LiPo) with dedicated power-delivery network (PDN), ultra-low-power sleep states management, and integrated charging circuitry.
+* **Actuation Drivers:** Low-side MOSFET switch configuration for a high-efficiency eccentric rotating mass (ERM) or linear resonant actuator (LRA) vibrator motor, and PWM-controlled LED notification array.
+
+### 2.2 Firmware & Software Architecture
+* **Drivers & Abstraction:** Built on top of STM32Cube HAL and raw CMSIS core registers for deterministic hardware control.
+* **Concurrency:** Bare-metal scheduling optimized through hardware interrupts (ISRs) and Direct Memory Access (DMA) transfers to prevent CPU starvation during heavy audio streaming.
+* **DSP Pipeline:** * Audio chunks are collected via a Ping-Pong buffer mechanism (Half-Transfer & Transfer-Complete DMA interrupts).
+  * Windowing (Hann/Hamming) and Fast Fourier Transform (FFT) or Mel-Frequency Cepstral Coefficients (MFCC) generation using optimized CMSIS-DSP functions.
+* **TinyML Inference Engine:** * Model architectures sourced and optimized from the STMicroelectronics Model Zoo.
+  * Quantization ($INT8$) and compilation for edge-execution utilizing STM32Cube.AI to minimize Flash and RAM footprint.
+
+---
+
+## 3. Anticipated Technical Roadmap
+
+**Phase 1: Research & Architectural Definition (Current)**
+- [ ] Finalize selection of the specific STM32 microcontroller and peripheral ICs.
+- [ ] Define acoustic feature extraction pipelines (Sampling frequency, frame length, overlap).
+- [ ] Establish baseline dataset requirements for relevant sound events (e.g., alarms, doorbells, traffic sirens).
+
+**Phase 2: TinyML & DSP Modeling**
+- [ ] Train and quantize the Audio Event Detection model using Python frameworks.
+- [ ] Validate floating-point vs fixed-point implementation performance.
+- [ ] Benchmark execution cycles using STM32Cube.AI tools.
+
+**Phase 3: Hardware & Firmware Development**
+- [ ] Schematic capture and PCB layout optimization for signal integrity (audio traces shield/isolation).
+- [ ] Implement low-level peripheral configuration (I2S, DMA, TIM-PWM, UART for telemetry).
+- [ ] Integrate CMSIS-DSP routines with the TinyML inference library.
+
+**Phase 4: Validation & Integration**
+- [ ] Unit testing execution for core DSP functions.
+- [ ] Hardware-in-the-Loop (HIL) injection testing of raw audio vectors to evaluate accuracy under realistic hardware power profiles.
+
+---
+
+## 4. Development Tools & Stack
+* **Hardware Design:** KiCad / Altium Designer.
+* **Firmware IDE:** STM32CubeIDE / VS Code with STM32 VS Code Extension.
+* **Libraries:** STM32Cube MCU Packages (HAL/LL), CMSIS-DSP, CMSIS-NN.
+* **Machine Learning Compiler:** STM32Cube.AI Core.
+* **Telemetry & Scripts:** Python 3.x for auxiliary testing and data parsing.
+```
