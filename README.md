@@ -77,9 +77,9 @@ graph TD
 ---
 
 ## 4. Development Tools & Stack
-* **Hardware Design:** KiCad / Altium Designer.
-* **Firmware IDE:** STM32CubeIDE / VS Code with STM32 VS Code Extension.
+* **Build System:** CMake + ARM GNU Toolchain (GCC).
+* **Firmware IDE:** Visual Studio Code configured with the STM32CubeIDE for VS Code extension.
+* **Hardware Design:** Proteus Design Suite (ISIS / ARES).
 * **Libraries:** STM32Cube MCU Packages (HAL/LL), CMSIS-DSP, CMSIS-NN.
-* **Machine Learning Compiler:** STM32Cube.AI Core.
-* **Telemetry & Scripts:** Python 3.x for auxiliary testing and data parsing.
+* **Machine Learning:** STMicroelectronics Model Zoo, STM32Cube.AI Core, Python 3.x (for telemetry and dataset processing).
 ```
