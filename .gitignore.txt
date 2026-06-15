@@ -1,0 +1,83 @@
+# ==========================================
+# 1. Sistema Operativo y Editores
+# ==========================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==========================================
+# 2. Compilación de Firmware (C/C++ & STM32)
+# ==========================================
+# Directorios de compilación (Eclipse/STM32CubeIDE/CMake)
+/src/Debug/
+/src/Release/
+/src/build/
+build/
+out/
+
+# Artefactos de compilación y binarios
+*.o
+*.d
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
+*.su
+*.a
+*.so
+
+# Archivos específicos de STM32CubeIDE / Eclipse
+.metadata/
+*.launch
+/.settings/
+.project
+.cproject
+
+# ==========================================
+# 3. Machine Learning y Scripts (Python)
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales (es crucial no subirlos)
+venv/
+env/
+.venv/
+
+# Variables de entorno y cachés
+.env
+.pytest_cache/
+.coverage
+
+# Archivos de Jupyter (si haces análisis de datos exploratorio)
+.ipynb_checkpoints
+
+# Modelos pesados temporales (opcional, si decides no versionarlos)
+# *.h5
+# *.tflite
+
+# ==========================================
+# 4. Diseño de Hardware (KiCad / Altium)
+# ==========================================
+# Archivos de respaldo de KiCad (Evitan ensuciar los commits)
+*.bck
+*.kicad_prl
+*.kicad_sch-bak
+*.kicad_pcb-bak
+*-bak
+_autosave-*
+fp-info-cache
+
+# Archivos de fabricación (Gerbers, Drill files, BOMs exportados)
+# Los archivos de fabricación deben generarse como releases, no versionarse
+/hardware/gerbers/
+*.gbr
+*.drl
+*.gbrjob
+*.zip
+*.csv
