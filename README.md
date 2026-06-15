@@ -6,8 +6,8 @@ This project encompasses the entire product development lifecycle, from digital 
 
 ---
 
-## 1. Project Status & Methodology
-This project is currently in the **Research and Architecture Definition** phase. Development follows a V-Model methodology ensuring that requirements tracking, module abstraction, and subsequent verification layers (Unit Testing/HIL) are established prior to hardware freeze.
+## 1. Project Status
+This project is currently in the **Research and Architecture Definition** phase.
 
 ---
 
@@ -47,7 +47,7 @@ graph TD
 * **Drivers & Abstraction:** Built on top of STM32Cube HAL and raw CMSIS core registers for deterministic hardware control.
 * **Concurrency:** Bare-metal scheduling optimized through hardware interrupts (ISRs) and Direct Memory Access (DMA) transfers to prevent CPU starvation during heavy audio streaming.
 * **DSP Pipeline:** * Audio chunks are collected via a Ping-Pong buffer mechanism (Half-Transfer & Transfer-Complete DMA interrupts).
-  * Windowing (Hann/Hamming) and Fast Fourier Transform (FFT) or Mel-Frequency Cepstral Coefficients (MFCC) generation using optimized CMSIS-DSP functions.
+  * Windowing (Hann/Hamming) and Mel-Frequency Cepstral Coefficients (MFCC) generation using optimized CMSIS-DSP functions.
 * **TinyML Inference Engine:** * Model architectures sourced and optimized from the STMicroelectronics Model Zoo.
   * Quantization ($INT8$) and compilation for edge-execution utilizing STM32Cube.AI to minimize Flash and RAM footprint.
 
