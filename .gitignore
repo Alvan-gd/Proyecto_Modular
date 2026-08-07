@@ -1,0 +1,95 @@
+# ==========================================
+# 1. Sistema Operativo y Editores
+# ==========================================
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+
+# Ignorar área de trabajo de VS Code, pero retener configuraciones de arquitectura
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/c_cpp_properties.json
+!.vscode/extensions.json
+
+# ==========================================
+# 2. Compilación de Firmware (C/C++ & ESP-IDF)
+# ==========================================
+# Directorios de compilación y dependencias dinámicas
+build/
+managed_components/
+dependencies.lock
+
+# Archivos de configuración generados y mapeos
+sdkconfig
+sdkconfig.old
+*.elf
+*.bin
+*.map
+*.log
+*.a
+*.o
+*.d
+*.ld
+*.lst
+*.su
+*.so
+
+# Particiones y argumentos de flasheo
+partition_table/
+flash_project_args
+flash_project_args.json
+
+# ==========================================
+# 3. Machine Learning y Scripts (Python)
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Variables y cachés de pruebas
+.env
+.pytest_cache/
+.coverage
+.ipynb_checkpoints
+
+# ==========================================
+# 4. Diseño de Hardware (Simulación y PCB)
+# ==========================================
+# Archivos temporales y backups de Proteus
+*.PWI
+*.DBK
+*Backup*.pdsprj
+*Backup*.DSN
+Last-Saved-*.pdsprj
+
+# Archivos de respaldo de KiCad (Módulos legados)
+*.bck
+*.kicad_prl
+*.kicad_sch-bak
+*.kicad_pcb-bak
+*-bak
+_autosave-*
+fp-info-cache
+
+# Archivos de fabricación 
+/hardware/gerbers/
+*.gbr
+*.drl
+*.gbrjob
+*.zip
+*.csv
+
+# Exclusiones recursivas para subdirectorios (ESP-IDF)
+.clangd
+.clangd/
+Audia/.vscode/
