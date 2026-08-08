@@ -51,3 +51,25 @@ Please use the following feedback channels:
 * For a feature request or bug report, create a [GitHub issue](https://github.com/espressif/esp-idf/issues)
 
 We will get back to you as soon as possible.
+
+
+## Initialize DevContainer and give access to USB port:
+https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/additionalfeatures/docker-container.html?highlight=docker
+
+
+## Configuration for Esp-IDF extension
+
+====== SPI FLASH ======
+Flash Size : 8MB
+Flash SPI Mode : QIO
+Flash SPI Speed : 80 MHz
+
+===== PSRAM ======
+Support for external. SPI-connected RAM : Enabled
+
+====== SPI RAM ======
+Mode (QUAD/OCT) of SPI RAM chip in use : Octal Mode PSRAM
+Set RAM Clock Speed : 80 MHz clock speed
+
+
+Normally the rest of the configuration is set when selecting esp32 s3 board in "Set Espressif Device Target (IDF target)" option in ESP IDF extension status bar.

@@ -19,7 +19,7 @@ The architecture is divided into decoupled layers to ensure portability, adheren
 graph TD
     %% Hardware/Physical Layer
     subgraph Physical_Layer [Physical & Hardware Layer]
-        Mic[Digital I2S Microphone] -->|I2S Protocol: SCK, WS, SD| MCU[STM32 Microcontroller]
+        Mic[Digital I2S Microphone] -->|I2S Protocol: SCK, WS, SD| MCU[XIAO SEEED ESP32 S3 Microcontroller]
         MCU -->|GPIO / PWM| Actuators[Vibratory & Luminous Indicators]
     end
 
