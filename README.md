@@ -1,19 +1,29 @@
-# Wearable Audio Event Detector for Hearing Impaired Assistance
+# DAIDA Dispositivo de Asistencia Inteligente para Discapacidad Auditiva
 
-An advanced embedded systems and TinyML project designed to assist hearing-impaired individuals by detecting and classifying relevant environmental sounds. The system processes real-time audio on-edge and provides immediate tactile (vibrational) and visual (luminous) feedback. 
+![Status: Architecture & Research](https://img.shields.io/badge/Status-Architecture_&_Research-blue)
+![Platform: ESP32-S3](https://img.shields.io/badge/Platform-ESP32--S3-orange)
+![Framework: ESP-IDF](https://img.shields.io/badge/Framework-ESP--IDF-red)
+![RTOS: FreeRTOS](https://img.shields.io/badge/RTOS-FreeRTOS-green)
 
-This project encompasses the entire product development lifecycle, from digital signal processing (DSP) and machine learning inference compilation to custom PCB design with strict form-factor constraints.
+Un proyecto avanzado de sistemas embebidos y TinyML diseñado para asistir a personas con discapacidad auditiva mediante la detección, cálculo espacial y clasificación de sonidos ambientales críticos. El sistema procesa el audio en tiempo real directamente en el dispositivo (*Edge AI*) y proporciona retroalimentación multisensorial inmediata.
+
+Este proyecto abarca el ciclo de vida completo de desarrollo bajo la metodología del **Modelo V** (estándares INCOSE y VDI 2206), desde el Procesamiento Digital de Señales (DSP) e inferencia estocástica, hasta el diseño de un PCB a medida con estrictas restricciones físicas (latencia <= 150 ms, masa <= 300 g, límite de 11 pines GPIO).
 
 ---
 
-## 1. Project Status
-This project is currently in the **Research and Architecture Definition** phase.
+## ✨ Características Principales
+* **Clasificación Jerárquica de Audio:** Detección de ~20 clases de sonidos ambientales divididas en tres niveles paramétricos (*Aviso, Urgencia, Emergencia*).
+* **Resolución Espacial (TDOA):** Cálculo de Dirección de Llegada del sonido con una resolución de 45° (8 cuadrantes).
+* **Feedback Multisensorial:** 
+  * **Háptico:** Patrones de vibración segregados vía bus I2C.
+  * **Visual:** Pantalla SPI con íconos dinámicos y codificación cromática perimetral virtualizada.
+* **Procesamiento de Baja Latencia:** Muestreo a 16 kHz y ejecución concurrente para garantizar una respuesta End-to-End <= 150 ms.
 
 ---
 
-## 2. System Architecture
+## 🏗️ Arquitectura del Sistema
 
-The architecture is divided into decoupled layers to ensure portability, adherence to hardware abstraction principles, and efficient execution of Digital Signal Processing (DSP) and Machine Learning algorithms.
+La arquitectura implementa un enfoque de multiprocesamiento asimétrico (Dual Core) bajo FreeRTOS, segregando de forma estricta los mapas de memoria para garantizar el determinismo temporal en la ruta crítica del modelo de Inteligencia Artificial.
 
 ```mermaid
 flowchart TD
@@ -101,50 +111,25 @@ flowchart TD
     class C1_1,C1_2,C1_3,C1_4,C1_5 core1;
 ```
 
-### 2.1 Hardware Layer (PCB Design Constraints)
-* **Form Factor:** Compact, wearable proportions utilizing low-profile SMD/SMT components.
-* **Microcontroller:** Target STM32 ARM Cortex-M4 MCU (leveraging the FPU for efficient DSP execution).
-* **Audio Acquisition:** High-SNR MEMS Microphone interface utilizing native I2S bus.
-* **Power Management:** Battery-operated design (LiPo) with dedicated power-delivery network (PDN), ultra-low-power sleep states management, and integrated charging circuitry.
-* **Actuation Drivers:** Low-side MOSFET switch configuration for a high-efficiency eccentric rotating mass (ERM) or linear resonant actuator (LRA) vibrator motor, and PWM-controlled LED notification array.
+## 🛠️ Stack Tecnológico y Hardware
 
-### 2.2 Firmware & Software Architecture
-* **Drivers & Abstraction:** Built on top of STM32Cube HAL and raw CMSIS core registers for deterministic hardware control.
-* **Concurrency:** Bare-metal scheduling optimized through hardware interrupts (ISRs) and Direct Memory Access (DMA) transfers to prevent CPU starvation during heavy audio streaming.
-* **DSP Pipeline:** * Audio chunks are collected via a Ping-Pong buffer mechanism (Half-Transfer & Transfer-Complete DMA interrupts).
-  * Windowing (Hann/Hamming) and Mel-Frequency Cepstral Coefficients (MFCC) generation using optimized CMSIS-DSP functions.
-* **TinyML Inference Engine:** * Model architectures sourced and optimized from the STMicroelectronics Model Zoo.
-  * Quantization ($INT8$) and compilation for edge-execution utilizing STM32Cube.AI to minimize Flash and RAM footprint.
+### Hardware (Dominio Físico)
+* **SoC:** Seeed Studio XIAO ESP32-S3 (Xtensa Dual-Core LX7 a 240 MHz, 8MB Flash, 8MB PSRAM).
+* **Captura Acústica:** 4x Micrófonos INMP441 (Bus I2S Maestro-Esclavo).
+* **Actuador Háptico:** Driver DRV2605L (Bus I2C).
+* **Interfaz Visual:** Pantalla TFT/OLED (Bus SPI).
 
----
-
-## 3. Anticipated Technical Roadmap
-
-**Phase 1: Research & Architectural Definition (Current)**
-- [ ] Finalize selection of the specific ESP32 microcontroller and peripheral ICs.
-- [ ] Define acoustic feature extraction pipelines (Sampling frequency, frame length, overlap).
-- [ ] Establish baseline dataset requirements for relevant sound events (e.g., alarms, doorbells, traffic sirens).
-
-**Phase 2: TinyML & DSP Modeling**
-- [ ] Train and quantize the Audio Event Detection model using Python frameworks.
-- [ ] Validate floating-point vs fixed-point implementation performance.
-- [ ] Benchmark execution cycles using STM32Cube.AI tools.
-
-**Phase 3: Hardware & Firmware Development**
-- [ ] Schematic capture and PCB layout optimization for signal integrity (audio traces shield/isolation).
-- [ ] Implement low-level peripheral configuration (I2S, DMA, TIM-PWM, UART for telemetry).
-- [ ] Integrate CMSIS-DSP routines with the TinyML inference library.
-
-**Phase 4: Validation & Integration**
-- [ ] Unit testing execution for core DSP functions.
-- [ ] Hardware-in-the-Loop (HIL) injection testing of raw audio vectors to evaluate accuracy under realistic hardware power profiles.
+### Software (Dominio Lógico y MLOps)
+* **RTOS & Framework:** FreeRTOS sobre ESP-IDF (C/C++).
+* **Machine Learning:** Edge Impulse (Exportación optimizada para instrucciones vectoriales Xtensa LX7).
+* **Entorno de Desarrollo:** Visual Studio Code + Docker (Contenedor inmutable para compilación cruzada).
+* **Diseño EDA:** Proteus Design Suite (Ruteo de Carrier Board PCB).
 
 ---
 
-## 4. Development Tools & Stack
-* **Build System:** CMake + ARM GNU Toolchain (GCC).
-* **Firmware IDE:** Visual Studio Code configured with the ESP-IDF for VS Code extension.
-* **Hardware Design:** Proteus Design Suite (ISIS / ARES).
-* **Libraries:** Espressif MCU Packages
-* **Machine Learning:** Edge Impulse framework
-```
+## 📈 Estado Actual (Roadmap)
+- [x] Definición de Requerimientos del Sistema (REQ-01 a REQ-08).
+- [x] Diseño de Arquitectura (Hardware, Memoria y RTOS).
+- [ ] Diseño Detallado y Pruebas de Integración (TDOA y DSP).
+- [ ] Implementación de Firmware y Cuantización del Modelo.
+- [ ] Fabricación de PCB y Validación de Usuario.
