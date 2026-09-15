@@ -1,5 +1,5 @@
 {
-	"name": "Audia ESP-IDF",
+	"name": "DAIDA",
 	
 	"build": {
 	  "dockerfile": "Dockerfile",
