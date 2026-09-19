@@ -8,6 +8,7 @@
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 
+
 // Definición nativa de pines basada en el esquema del XIAO ESP32S3
 #define LCD_HOST               SPI2_HOST
 #define PIN_NUM_DIN            9   // Pin D10 (SPI MOSI)
@@ -23,7 +24,7 @@
 #define LCD_H_RES              240
 #define LCD_V_RES              280
 
-// Prototipado de funciones
+// Prototipado de funciones st7789
 esp_lcd_panel_handle_t lcd_st7789_init(esp_lcd_panel_io_handle_t *ret_io_handle);
 
 
