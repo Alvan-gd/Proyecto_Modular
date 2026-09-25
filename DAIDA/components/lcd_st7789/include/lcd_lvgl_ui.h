@@ -8,6 +8,11 @@
 #include "lvgl.h"
 #include "lcd_st7789.h"
 #include "esp_lcd_types.h"
+#include "alarm.h"
+#include "bell.h"
+#include "danger.h"
+#include "phone.h"
+#include "voice.h"
 
 // Defined color macros mapped to ST7789 panel logic
 #define ST7789_COLOR_GREEN     lv_color_hex(0x0000ff) // Pure green
@@ -35,6 +40,7 @@ typedef enum {
     BORDER_ZONE_MAX
 } border_zone_t;
 
+
 /**
  * @brief Initializes LVGL display interface.
  * 
@@ -58,5 +64,19 @@ void illuminate_border_zone(border_zone_t zone, lv_color_t color);
  * @brief Hides or turns off active border illumination.
  */
 void illuminate_border_off(void);
+
+/**
+ * @brief Initializes the icon display.
+ */
+void init_icon(void);
+
+/**
+ * @brief Draws a 64x64 icon centered on the display
+ * 
+ * @param bitmap Pointer to the icon bitmap data.
+ * @param color Color of the icon.
+ */
+void draw_icon(const uint8_t *bitmap, lv_color_t color);
+
 
 #endif // LCD_LVGL_UI_H

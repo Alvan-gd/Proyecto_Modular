@@ -3,9 +3,17 @@
 #include "lcd_st7789.h" 
 #include "lvgl.h"
 
+#define ICON_X       88
+#define ICON_Y       108
+#define ICON_WIDTH   64
+#define ICON_HEIGHT  64
+#define ICON_SIZE    (ICON_WIDTH * ICON_HEIGHT / 8)
+
 static const char *TAG = "lcd_lvgl_ui";
 static lv_obj_t *glow_obj = NULL;
 static lv_obj_t *black_square = NULL;
+static lv_obj_t *icon_img = NULL;
+static lv_image_dsc_t icon_dsc;
 
 
 // Lookup table matching border_zone_t enum
@@ -195,4 +203,35 @@ void illuminate_border_off(void)
     if (glow_obj != NULL) {
         lv_obj_add_flag(glow_obj, LV_OBJ_FLAG_HIDDEN);
     }
+}
+
+void init_icon(void)
+{
+    icon_img = lv_image_create(lv_screen_active());
+
+    lv_obj_set_pos(icon_img, ICON_X, ICON_Y);
+
+    icon_dsc.header.magic = LV_IMAGE_HEADER_MAGIC;
+    icon_dsc.header.cf = LV_COLOR_FORMAT_A1;
+    icon_dsc.header.flags = 0;
+    icon_dsc.header.w = ICON_WIDTH;
+    icon_dsc.header.h = ICON_HEIGHT;
+    icon_dsc.header.stride = ICON_WIDTH / 8;
+
+    icon_dsc.data_size = ICON_SIZE;
+    icon_dsc.data = NULL;
+}
+
+void draw_icon(const uint8_t *bitmap, lv_color_t color)
+{
+    if (icon_img == NULL || bitmap == NULL) {
+        return;
+    }
+
+    icon_dsc.data = bitmap;
+
+    lv_image_set_src(icon_img, &icon_dsc);
+
+    lv_obj_set_style_image_recolor(icon_img, color, 0);
+    lv_obj_set_style_image_recolor_opa(icon_img, LV_OPA_COVER, 0);
 }
