@@ -64,11 +64,12 @@ def convert_png_to_1bpp(input_file, output_file):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage:")
-        print("python png_to_1bpp.py input.png output.h")
-        sys.exit(1)
+    icons_dir = Path("components/lcd_st7789/icons")
 
-    convert_png_to_1bpp(sys.argv[1], sys.argv[2])
-
-    print(f"Converted {sys.argv[1]} -> {sys.argv[2]}")
+    for file in icons_dir.glob("*.png"):
+        output_file = file.with_name(f"{file.stem}.h")
+        try:
+            convert_png_to_1bpp(str(file), str(output_file))
+            print(f"Procesado: {file.name}")
+        except Exception as e:
+            print(f"Error procesando {file.name}: {e}")

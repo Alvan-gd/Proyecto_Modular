@@ -13,6 +13,10 @@
 #include "danger.h"
 #include "phone.h"
 #include "voice.h"
+#include "police.h"
+#include "firetruck.h"
+#include "car.h"
+#include "ambulance.h"
 
 // Defined color macros mapped to ST7789 panel logic
 #define ST7789_COLOR_GREEN     lv_color_hex(0x0000ff) // Pure green

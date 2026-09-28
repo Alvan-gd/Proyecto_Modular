@@ -1,6 +1,6 @@
 # LCD ST7789 Component
 This file describes the structure and proper use of the contents on the 'lcd_st7789.c' and 'lcd_lvgl_ui.c' files.
-The functions and characteristics in this component are designed exclusively to cover the needs and specificactions of DAIDA, so the implementation is not meant to be a general purpose library for the display.
+The functions and characteristics in this component are designed exclusively to cover the needs and specificactions for DAIDA, so the implementation is not meant to be a general purpose library for the display.
 
 ## Components inside /lcd_stt7789
 ### lcd_st7789

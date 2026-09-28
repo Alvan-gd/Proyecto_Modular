@@ -59,11 +59,20 @@ void app_main(void)
                         case RIGHT:
                             draw_icon(bell_bitmap, COLORS[color_index]);
                             break;
+                        case BOTTOM_RIGHT:
+                            draw_icon(ambulance_bitmap, COLORS[color_index]);
+                            break;
                         case BOTTOM:
                             draw_icon(danger_bitmap, COLORS[color_index]);
                             break;
+                        case BOTTOM_LEFT:
+                            draw_icon(firetruck_bitmap, COLORS[color_index]);
+                            break;
                         case LEFT:
                             draw_icon(phone_bitmap, COLORS[color_index]);
+                            break;
+                        case TOP_LEFT:
+                            draw_icon(police_bitmap, COLORS[color_index]);
                             break;
                         default:
                             break;
