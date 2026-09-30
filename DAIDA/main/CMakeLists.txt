@@ -1,4 +1,4 @@
 idf_component_register(SRCS "main.c"
                        PRIV_REQUIRES spi_flash
                        INCLUDE_DIRS ""
-                       REQUIRES esp_psram)
+                       REQUIRES esp_psram lcd_st7789)

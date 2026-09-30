@@ -1,9 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2010-2022 Espressif Systems (Shanghai) CO LTD
- *
- * SPDX-License-Identifier: CC0-1.0
- */
-
 #include <stdio.h>
 #include <inttypes.h>
 #include "sdkconfig.h"
@@ -12,41 +6,84 @@
 #include "esp_chip_info.h"
 #include "esp_flash.h"
 #include "esp_system.h"
+#include "lcd_st7789.h"
+#include "lcd_lvgl_ui.h"
+
+static const char *TAG = "main";
 
 void app_main(void)
 {
-    printf("Hello world!\n");
+    esp_lcd_panel_io_handle_t io_handle = NULL;
+    esp_lcd_panel_handle_t panel_handle = NULL;
 
-    /* Print chip information */
-    esp_chip_info_t chip_info;
-    uint32_t flash_size;
-    esp_chip_info(&chip_info);
-    printf("This is %s chip with %d CPU core(s), %s%s%s%s, ",
-           CONFIG_IDF_TARGET,
-           chip_info.cores,
-           (chip_info.features & CHIP_FEATURE_WIFI_BGN) ? "WiFi/" : "",
-           (chip_info.features & CHIP_FEATURE_BT) ? "BT" : "",
-           (chip_info.features & CHIP_FEATURE_BLE) ? "BLE" : "",
-           (chip_info.features & CHIP_FEATURE_IEEE802154) ? ", 802.15.4 (Zigbee/Thread)" : "");
+    // 1. Initialize ST7789 Display Driver
+    lcd_st7789_init(&io_handle, &panel_handle);
 
-    unsigned major_rev = chip_info.revision / 100;
-    unsigned minor_rev = chip_info.revision % 100;
-    printf("silicon revision v%d.%d, ", major_rev, minor_rev);
-    if(esp_flash_get_size(NULL, &flash_size) != ESP_OK) {
-        printf("Get flash size failed");
-        return;
+    // 2. Initialize LVGL
+    lv_display_t *disp = lcd_lvgl_init(io_handle, panel_handle);
+    if (disp == NULL) {
+        return;   
+    }
+    // Set black background on main screen
+    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x000000), 0);
+    lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
+
+    // 3. Initialize border illumination object
+    illuminate_border_init();
+    init_icon();
+
+    border_zone_t zone = SECTOR_0;
+    lv_color_t COLORS[] = {
+        ST7789_COLOR_GREEN,
+        ST7789_COLOR_YELLOW,
+        ST7789_COLOR_RED,
+        ST7789_COLOR_BLUE,
+    };
+
+
+    size_t num_colors = sizeof(COLORS) / sizeof(COLORS[0]);
+    while (1) {
+        for (uint8_t color_index = 0; color_index < num_colors; color_index++) {
+            zone = SECTOR_0; // Reset zone to start from the top
+            
+            do {
+                if (lvgl_port_lock(0)) {
+                    illuminate_border_zone(zone, COLORS[color_index]);
+                     switch (zone) {
+                        case SECTOR_0:
+                            draw_icon(alarm_bitmap, COLORS[color_index]);
+                            break;
+                        case SECTOR_45:
+                            draw_icon(voice_bitmap, COLORS[color_index]);
+                            break;
+                        case SECTOR_90:
+                            draw_icon(bell_bitmap, COLORS[color_index]);
+                            break;
+                        case SECTOR_135:
+                            draw_icon(ambulance_bitmap, COLORS[color_index]);
+                            break;
+                        case SECTOR_180:
+                            draw_icon(danger_bitmap, COLORS[color_index]);
+                            break;
+                        case SECTOR_225:
+                            draw_icon(firetruck_bitmap, COLORS[color_index]);
+                            break;
+                        case SECTOR_270:
+                            draw_icon(phone_bitmap, COLORS[color_index]);
+                            break;
+                        case SECTOR_315:
+                            draw_icon(police_bitmap, COLORS[color_index]);
+                            break;
+                        default:
+                            break;
+                    }
+                    lvgl_port_unlock();
+                }
+                vTaskDelay(pdMS_TO_TICKS(1000));
+                zone = (zone + 1) % BORDER_ZONE_MAX;
+            } while (zone != SECTOR_0); 
+        }
     }
 
-    printf("%" PRIu32 "MB %s flash\n", flash_size / (uint32_t)(1024 * 1024),
-           (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
-
-    printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
-
-    for (int i = 10; i >= 0; i--) {
-        printf("Restarting in %d seconds...\n", i);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
-    printf("Restarting now.\n");
-    fflush(stdout);
-    esp_restart();
 }
+
