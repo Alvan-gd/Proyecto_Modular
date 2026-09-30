@@ -32,7 +32,7 @@ void app_main(void)
     illuminate_border_init();
     init_icon();
 
-    border_zone_t zone = TOP;
+    border_zone_t zone = SECTOR_0;
     lv_color_t COLORS[] = {
         ST7789_COLOR_GREEN,
         ST7789_COLOR_YELLOW,
@@ -44,34 +44,34 @@ void app_main(void)
     size_t num_colors = sizeof(COLORS) / sizeof(COLORS[0]);
     while (1) {
         for (uint8_t color_index = 0; color_index < num_colors; color_index++) {
-            zone = TOP;
+            zone = SECTOR_0; // Reset zone to start from the top
             
             do {
                 if (lvgl_port_lock(0)) {
                     illuminate_border_zone(zone, COLORS[color_index]);
                      switch (zone) {
-                        case TOP:
+                        case SECTOR_0:
                             draw_icon(alarm_bitmap, COLORS[color_index]);
                             break;
-                        case TOP_RIGHT:
+                        case SECTOR_45:
                             draw_icon(voice_bitmap, COLORS[color_index]);
                             break;
-                        case RIGHT:
+                        case SECTOR_90:
                             draw_icon(bell_bitmap, COLORS[color_index]);
                             break;
-                        case BOTTOM_RIGHT:
+                        case SECTOR_135:
                             draw_icon(ambulance_bitmap, COLORS[color_index]);
                             break;
-                        case BOTTOM:
+                        case SECTOR_180:
                             draw_icon(danger_bitmap, COLORS[color_index]);
                             break;
-                        case BOTTOM_LEFT:
+                        case SECTOR_225:
                             draw_icon(firetruck_bitmap, COLORS[color_index]);
                             break;
-                        case LEFT:
+                        case SECTOR_270:
                             draw_icon(phone_bitmap, COLORS[color_index]);
                             break;
-                        case TOP_LEFT:
+                        case SECTOR_315:
                             draw_icon(police_bitmap, COLORS[color_index]);
                             break;
                         default:
@@ -81,7 +81,7 @@ void app_main(void)
                 }
                 vTaskDelay(pdMS_TO_TICKS(1000));
                 zone = (zone + 1) % BORDER_ZONE_MAX;
-            } while (zone != TOP); 
+            } while (zone != SECTOR_0); 
         }
     }
 

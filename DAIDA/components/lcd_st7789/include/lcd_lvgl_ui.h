@@ -33,14 +33,14 @@ typedef struct {
 } border_coords_t;
 
 typedef enum {
-    TOP = 0,
-    TOP_RIGHT,
-    RIGHT,
-    BOTTOM_RIGHT,
-    BOTTOM,
-    BOTTOM_LEFT,
-    LEFT,
-    TOP_LEFT,
+    SECTOR_0 = 0,
+    SECTOR_45,
+    SECTOR_90,
+    SECTOR_135,
+    SECTOR_180,
+    SECTOR_225,
+    SECTOR_270,
+    SECTOR_315,
     BORDER_ZONE_MAX
 } border_zone_t;
 
