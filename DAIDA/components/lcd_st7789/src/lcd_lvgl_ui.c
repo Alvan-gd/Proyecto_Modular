@@ -1,5 +1,4 @@
 #include "lcd_lvgl_ui.h"
-#include "esp_log.h"
 #include "lcd_st7789.h" 
 #include "lvgl.h"
 
@@ -28,18 +27,24 @@ static const border_coords_t BORDER_ZONES_COORDS[] = {
     {  0,   0,  80,  80}, // TOP_LEFT 
 };
 
-lv_display_t *lcd_lvgl_init(esp_lcd_panel_io_handle_t io_handle, esp_lcd_panel_handle_t panel_handle)
+esp_err_t lcd_lvgl_init(esp_lcd_panel_io_handle_t io_handle, esp_lcd_panel_handle_t panel_handle, lv_display_t **ret_disp)
 {
-    if (io_handle == NULL || panel_handle == NULL) {
-        return NULL;
+    // 1. Check input parameters for NULL pointers
+    if (io_handle == NULL || panel_handle == NULL || ret_disp == NULL) {
+        ESP_LOGE(TAG, "Invalid arguments: NULL pointer passed");
+        return ESP_ERR_INVALID_ARG;
     }
 
+    ESP_LOGI(TAG, "Initializing LVGL port...");
     const lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
+    
     esp_err_t err = lvgl_port_init(&lvgl_cfg);
     if (err != ESP_OK) {
-        return NULL;
+        ESP_LOGE(TAG, "Failed to initialize LVGL port: %s", esp_err_to_name(err));
+        return err;
     }
 
+    ESP_LOGI(TAG, "Adding LVGL display device...");
     const lvgl_port_display_cfg_t disp_cfg = {
         .io_handle = io_handle,
         .panel_handle = panel_handle,
@@ -60,10 +65,13 @@ lv_display_t *lcd_lvgl_init(esp_lcd_panel_io_handle_t io_handle, esp_lcd_panel_h
 
     lv_display_t *disp = lvgl_port_add_disp(&disp_cfg);
     if (disp == NULL) {
-        return NULL;
+        ESP_LOGE(TAG, "Failed to add LVGL display instance");
+        return ESP_FAIL;
     }
 
-    return disp;
+    *ret_disp = disp;
+    ESP_LOGI(TAG, "LVGL display initialized successfully");
+    return ESP_OK;
 }
 
 void illuminate_border_init(void)

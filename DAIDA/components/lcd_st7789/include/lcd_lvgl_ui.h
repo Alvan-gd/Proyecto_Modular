@@ -2,6 +2,8 @@
 #define LCD_LVGL_UI_H
 
 #include "esp_err.h"
+#include "esp_log.h"
+#include "esp_check.h"
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lvgl_port.h"
@@ -50,9 +52,14 @@ typedef enum {
  * 
  * @param io_handle Panel IO handle.
  * @param panel_handle Display panel handle.
- * @return lv_display_t* Pointer to created LVGL display instance.
+ * @param[out] ret_disp Pointer to store the created LVGL display instance.
+ * @return 
+ *      - ESP_OK: LVGL display initialized successfully.
+ *      - ESP_ERR_INVALID_ARG: Null pointer passed in parameters.
+ *      - ESP_ERR_NO_MEM: Memory allocation failed for LVGL port or display.
+ *      - ESP_FAIL / otros: Error during LVGL port initialization or display addition.
  */
-lv_display_t *lcd_lvgl_init(esp_lcd_panel_io_handle_t io_handle, esp_lcd_panel_handle_t panel_handle);
+esp_err_t lcd_lvgl_init(esp_lcd_panel_io_handle_t io_handle, esp_lcd_panel_handle_t panel_handle, lv_display_t **ret_disp);
 
 /**
  * @brief Initializes global persistent border illumination object.
