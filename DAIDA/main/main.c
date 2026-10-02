@@ -8,83 +8,53 @@
 #include "esp_system.h"
 #include "lcd_st7789.h"
 #include "lcd_lvgl_ui.h"
+#include "drv2605.h"
+#include "driver/i2c_master.h"
 #include "esp_log.h"
-#include "esp_err.h"
-#include "esp_check.h"
 
-static const char *TAG = "main";
+static const char *TAG = "MAIN";
 
 void app_main(void)
 {
-    esp_lcd_panel_io_handle_t io_handle = NULL;
-    esp_lcd_panel_handle_t panel_handle = NULL;
-    // 1. Initialize ST7789 Display Driver
-    ESP_ERROR_CHECK(lcd_st7789_init(&io_handle, &panel_handle));
+    drv2605_handle_t haptic_dev;
 
-    lv_display_t *disp = NULL;
-    // 2. Initialize LVGL Display Interface
-    ESP_ERROR_CHECK(lcd_lvgl_init(io_handle, panel_handle, &disp));
-
-    // Set black background on main screen
-    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x000000), 0);
-    lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
-
-    // 3. Initialize border illumination object
-    illuminate_border_init();
-    init_icon();
-
-    border_zone_t zone = SECTOR_0;
-    lv_color_t COLORS[] = {
-        ST7789_COLOR_GREEN,
-        ST7789_COLOR_YELLOW,
-        ST7789_COLOR_RED,
-        ST7789_COLOR_BLUE,
-    };
-
-
-    size_t num_colors = sizeof(COLORS) / sizeof(COLORS[0]);
-    while (1) {
-        for (uint8_t color_index = 0; color_index < num_colors; color_index++) {
-            zone = SECTOR_0; // Reset zone to start from the top
-            
-            do {
-                if (lvgl_port_lock(0)) {
-                    illuminate_border_zone(zone, COLORS[color_index]);
-                     switch (zone) {
-                        case SECTOR_0:
-                            draw_icon(alarm_bitmap, COLORS[color_index]);
-                            break;
-                        case SECTOR_45:
-                            draw_icon(voice_bitmap, COLORS[color_index]);
-                            break;
-                        case SECTOR_90:
-                            draw_icon(bell_bitmap, COLORS[color_index]);
-                            break;
-                        case SECTOR_135:
-                            draw_icon(ambulance_bitmap, COLORS[color_index]);
-                            break;
-                        case SECTOR_180:
-                            draw_icon(danger_bitmap, COLORS[color_index]);
-                            break;
-                        case SECTOR_225:
-                            draw_icon(firetruck_bitmap, COLORS[color_index]);
-                            break;
-                        case SECTOR_270:
-                            draw_icon(phone_bitmap, COLORS[color_index]);
-                            break;
-                        case SECTOR_315:
-                            draw_icon(police_bitmap, COLORS[color_index]);
-                            break;
-                        default:
-                            break;
-                    }
-                    lvgl_port_unlock();
-                }
-                vTaskDelay(pdMS_TO_TICKS(1000));
-                zone = (zone + 1) % BORDER_ZONE_MAX;
-            } while (zone != SECTOR_0); 
-        }
+    // 1. Initialize the DRV2605L device and configure the I2C bus
+    esp_err_t ret = drv2605_init(I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO, &haptic_dev);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error initializing DRV2605L");
+        return;
     }
 
+    // 2. Select the motor type (ERM) for the DRV2605L device
+    drv2605_select_motor(haptic_dev, DRV2605_MOTOR_ERM);
+
+    // 3. Use internal trigger mode for the DRV2605L device
+    drv2605_write_reg(haptic_dev, DRV2605_REG_MODE, DRV2605_MODE_INTTRIG);
+
+    while (1) {
+        // --- Pattern 1: Strong Click (Effect #1) ---
+        ESP_LOGI(TAG, "Executing Pattern 1: Strong Click (Effect 1)");
+        drv2605_set_effect(haptic_dev, 1);
+        drv2605_go(haptic_dev);
+        drv2605_wait_idle(haptic_dev, 1000);
+
+        vTaskDelay(pdMS_TO_TICKS(2000)); // Wait 2 seconds between patterns
+
+        // --- Pattern 2: Double Click (Effect #12) ---
+        ESP_LOGI(TAG, "Executing Pattern 2: Double Click (Effect 12)");
+        drv2605_set_effect(haptic_dev, 12);
+        drv2605_go(haptic_dev);
+        drv2605_wait_idle(haptic_dev, 1000);
+
+        vTaskDelay(pdMS_TO_TICKS(2000));
+
+        // --- Pattern 3: Increasing Ramp (Effect #47) ---
+        ESP_LOGI(TAG, "Executing Pattern 3: Increasing Ramp 0-100%% (Effect 47)");
+        drv2605_set_effect(haptic_dev, 47);
+        drv2605_go(haptic_dev);
+        drv2605_wait_idle(haptic_dev, 2000);
+
+        vTaskDelay(pdMS_TO_TICKS(4000)); // Wait longer before repeating the entire cycle
+    }
 }
 
