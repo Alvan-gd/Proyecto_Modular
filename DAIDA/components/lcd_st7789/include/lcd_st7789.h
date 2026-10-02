@@ -7,6 +7,9 @@
 #include "esp_lcd_panel_ops.h"
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
+#include "esp_err.h"
+#include "esp_log.h"
+#include "esp_check.h"
 
 // Native pin definitions based on XIAO ESP32-S3 schematic
 #define LCD_HOST            SPI2_HOST
@@ -28,7 +31,8 @@
  * 
  * @param ret_io_handle Pointer to store the created panel IO handle.
  * @param ret_panel_handle Pointer to store the created panel handle.
+ * @return esp_err_t ESP_OK if successful, otherwise an error code.
  */
-void lcd_st7789_init(esp_lcd_panel_io_handle_t *ret_io_handle, esp_lcd_panel_handle_t *ret_panel_handle);
+esp_err_t lcd_st7789_init(esp_lcd_panel_io_handle_t *ret_io_handle, esp_lcd_panel_handle_t *ret_panel_handle);
 
 #endif // LCD_ST7789_H
