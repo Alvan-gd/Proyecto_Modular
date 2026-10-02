@@ -8,6 +8,9 @@
 #include "esp_system.h"
 #include "lcd_st7789.h"
 #include "lcd_lvgl_ui.h"
+#include "esp_log.h"
+#include "esp_err.h"
+#include "esp_check.h"
 
 static const char *TAG = "main";
 
@@ -15,15 +18,13 @@ void app_main(void)
 {
     esp_lcd_panel_io_handle_t io_handle = NULL;
     esp_lcd_panel_handle_t panel_handle = NULL;
-
     // 1. Initialize ST7789 Display Driver
-    lcd_st7789_init(&io_handle, &panel_handle);
+    ESP_ERROR_CHECK(lcd_st7789_init(&io_handle, &panel_handle));
 
-    // 2. Initialize LVGL
-    lv_display_t *disp = lcd_lvgl_init(io_handle, panel_handle);
-    if (disp == NULL) {
-        return;   
-    }
+    lv_display_t *disp = NULL;
+    // 2. Initialize LVGL Display Interface
+    ESP_ERROR_CHECK(lcd_lvgl_init(io_handle, panel_handle, &disp));
+
     // Set black background on main screen
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x000000), 0);
     lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
