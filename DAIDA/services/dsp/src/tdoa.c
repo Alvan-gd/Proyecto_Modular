@@ -5,6 +5,7 @@
 #include "esp_log.h"
 #include "esp_dsp.h"
 
+// Factor de escala para normalizar muestras de audio PCM de 24 bits punto flotante en el rango [-1.0 , 1.0]
 #define PCM24_SCALE_FLOAT (1.0f / 8388608.0f)
 
 static const char *TAG = "TDOA"; // Tag usado para imprimir mensajes del log
@@ -47,8 +48,8 @@ static inline float parabolic_interpolation(float y1, float y2, float y3)
  * This function extracts the signals from the interleaved buffer, applies a Hann window, computes the FFT, calculates the cross-correlation, and finds the time delay between the two signals.
  * 
  * @param buffer Pointer to the input buffer containing interleaved microphone samples.
- * @param channel_pos Index of the positive microphone channel in the interleaved buffer.
- * @param channel_neg Index of the negative microphone channel in the interleaved buffer.
+ * @param channel_pos Index of the positive microphone channel in the interleaved buffer (axis x = 0 | axis y = 2).
+ * @param channel_neg Index of the negative microphone channel in the interleaved buffer (axis x = 1 | axis y = 3).
  * @return float The estimated time delay in samples between the two microphone signals. This value can be fractional due to interpolation.
  */
 static float tdoa_compute_pair_lag(const int32_t *buffer, uint8_t channel_pos, uint8_t channel_neg)
@@ -65,38 +66,43 @@ static float tdoa_compute_pair_lag(const int32_t *buffer, uint8_t channel_pos, u
     for (int16_t i = 0; i < TDOA_FFT_N; i++) {
         float sample_a = (float)(buffer[i * I2S_STRIDE + channel_pos] >> 8) * hann_window[i] * PCM24_SCALE_FLOAT; // extraccion de la muestra del micrófono positivo y aplicación de la ventana de Hann
         complex_mic_a[2 * i] = sample_a; //Parte real
-        complex_mic_a[2 * i + 1] = 0.0f;     //Parte imaginaria
+        complex_mic_a[2 * i + 1] = 0.0f; //Parte imaginaria
     
         float sample_b = (float)(buffer[i * I2S_STRIDE + channel_neg] >> 8) * hann_window[i] * PCM24_SCALE_FLOAT; // extraccion de la muestra del micrófono negativo y aplicación de la ventana de Hann
         complex_mic_b[2 * i] =  sample_b; //Parte real
-        complex_mic_b[2 * i + 1] = 0.0f;     //Parte imaginaria
+        complex_mic_b[2 * i + 1] = 0.0f;  //Parte imaginaria
     }
 
     /* =============================================================================
      *              2: Paso al dominio de la frecuencia con FFT
      * ============================================================================*/
-    err = dsps_fft2r_fc32(complex_mic_a, TDOA_FFT_N); // FFT de la señal del micrófono positivo
+
+     // Cálculo de la FFT de la señal del micrófono positivo
+    err = dsps_fft2r_fc32(complex_mic_a, TDOA_FFT_N);
 
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error al calcular la FFT de mic_a: %s", esp_err_to_name(err));
         return 0.0f;
     }
 
-    err = dsps_bit_rev_fc32(complex_mic_a, TDOA_FFT_N); // Reordenar los datos de la FFT de mic_a tras la operacion de inversion de bits
+    // Reordenar los datos de la FFT de mic_a tras la operacion de inversion de bits provocada por el algoritmo radix2
+    err = dsps_bit_rev_fc32(complex_mic_a, TDOA_FFT_N);
 
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error al reordenar la FFT de mic_a: %s", esp_err_to_name(err));
         return 0.0f;
     }
 
-    err = dsps_fft2r_fc32(complex_mic_b, TDOA_FFT_N); // FFT de la señal del micrófono negativo
+    // Cálculo de la FFT de la señal del micrófono negativo
+    err = dsps_fft2r_fc32(complex_mic_b, TDOA_FFT_N);
 
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error al calcular la FFT de mic_b: %s", esp_err_to_name(err));
         return 0.0f;
     }
 
-    err = dsps_bit_rev_fc32(complex_mic_b, TDOA_FFT_N); // Reordenar los datos de la FFT de mic_b tras la operacion de inversion de bits
+    // Reordenar los datos de la FFT de mic_b tras la operacion de inversion de bits provocada por el algoritmo radix2
+    err = dsps_bit_rev_fc32(complex_mic_b, TDOA_FFT_N);
 
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error al reordenar la FFT de mic_b: %s", esp_err_to_name(err));
@@ -121,10 +127,12 @@ static float tdoa_compute_pair_lag(const int32_t *buffer, uint8_t channel_pos, u
         float imag_b = complex_mic_b[2 * i + 1];
 
         // Calcular la conjugada de mic_b y multiplicar por mic_a
-        float gcc_real = (real_a * real_b + imag_a * imag_b);
+        // Producto complejo: (a + jb)(c - jd) = (ac + bd) + j(bc - ad)
+        float gcc_real = (real_a * real_b + imag_a * imag_b); // Los reales ya que i*i = -1
         float gcc_imag = (imag_a * real_b - real_a * imag_b);
 
         // Normalizar la magnitud para obtener la fase
+        // Magnitud = raíz (real^2 + imag^2)
         float mag_squared = (gcc_real * gcc_real) + (gcc_imag * gcc_imag); // Magnitud al cuadrado
 
         if (mag_squared < 1e-12f) { // Evitar división por cero
@@ -220,7 +228,7 @@ esp_err_t tdoa_init(void)
         return err;
     }
 
-    // Inicializar la ventana de Hann
+    // Inicializar la ventana de Hann almacenando su valor en un buffer estático.
     dsps_wind_hann_f32(hann_window, TDOA_FFT_N);
 
     is_initialized = true;
@@ -258,7 +266,7 @@ esp_err_t tdoa_process(const int32_t *buffer, float *angle_out){
      *             1: Calculo del retardo entre pares de micrófonos
      * ============================================================================*/
 
-    // Calcular los retardos entre los pares de micrófonos
+    // Calcular los retardos relativos en los ejes X, Y entre los pares de micrófonos
     float tau_x = tdoa_compute_pair_lag(buffer, TDOA_CH_X_POS, TDOA_CH_X_NEG);
     float tau_y = tdoa_compute_pair_lag(buffer, TDOA_CH_Y_POS, TDOA_CH_Y_NEG);
 
@@ -274,8 +282,12 @@ esp_err_t tdoa_process(const int32_t *buffer, float *angle_out){
      * ============================================================================*/
     // En un plano cartesiano, el ángulo se puede calcular usando la función atan2,
     // que devuelve el ángulo en radianes entre el eje x positivo y el punto (tau_x, tau_y)
-    // Luego, se convierte a grados multiplicando por (180 / π)
-    float angle = atan2f(tau_y, tau_x) * (180.0f / (float)M_PI);
+    // El retardo en el eje X calculado en el tiempo corresponde a (d * cos(angulo))/c
+    // El retardo en el eje Y calculado en el tiempo corresponde a (d * sin(angulo))/c (rotacion de 90°)
+    // Por lo tanto, el ángulo de llegada se puede calcular como:
+    // angle = atan2(tau_y, tau_x)
+
+    float angle = atan2f(tau_y, tau_x) * (180.0f / (float)M_PI); // Se convierte a grados multiplicando por (180 / π)
 
     if (angle < 0.0f) {
         angle += 360.0f; // Asegurarse de que el ángulo esté en el rango [0, 360)

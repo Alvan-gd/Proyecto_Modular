@@ -5,7 +5,7 @@
 #include "esp_err.h"
 
 /* Configuraciones Físicas y de Señal */
-#define TDOA_FFT_N          512
+#define TDOA_FFT_N          256
 #define TDOA_COMPLEX_SIZE   (TDOA_FFT_N * 2)
 #define I2S_STRIDE          4
 #define SAMPLE_RATE_HZ      16000.0f

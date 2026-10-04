@@ -1,7 +1,10 @@
 #include "dsp_pipeline.h"
 #include "tdoa.h"
 
+#include "drv_i2s_mic.h"
+
 #include <math.h>
+#include "esp_timer.h"
 #include "esp_log.h"
 
 static const char *TAG = "DSP_PIPELINE"; // Tag usado para imprimir mensajes del log
@@ -45,22 +48,6 @@ esp_err_t dsp_pipeline_init(void) {
  */
 esp_err_t dsp_pipeline_process(const int32_t *buffer, dsp_event_t *event_out, int16_t mic_mono_out[DMA_FRAME_NUM]) {
 
-    // // DUMP DE DEPURACIÓN: Inspección de los primeros 4 frames de audio crudo
-    // static int dump_count = 0;
-    // if (dump_count < 3) {
-    //     ESP_LOGW("RAW_DUMP", "--- MUESTRAS CRUDAS (CH0, CH1, CH2, CH3) ---");
-    //     for (int f = 0; f < 4; f++) {
-    //         ESP_LOGI("RAW_DUMP", "F%d: [CH0: 0x%08X (%d)] [CH1: 0x%08X] [CH2: 0x%08X] [CH3: 0x%08X]",
-    //                  f,
-    //                  (unsigned int)buffer[f * MIC_CHANNELS + 0],
-    //                  (int)(buffer[f * MIC_CHANNELS + 0] >> 16),
-    //                  (unsigned int)buffer[f * MIC_CHANNELS + 1],
-    //                  (unsigned int)buffer[f * MIC_CHANNELS + 2],
-    //                  (unsigned int)buffer[f * MIC_CHANNELS + 3]);
-    //     }
-    //     dump_count++;
-    // }
-
     esp_err_t err;
 
     /* =============================================================================
@@ -88,7 +75,7 @@ esp_err_t dsp_pipeline_process(const int32_t *buffer, dsp_event_t *event_out, in
     float sum_sq = 0.0f, sum = 0.0f;
 
     for (int i = 0; i< DMA_FRAME_NUM; i++) {
-        int16_t sample_i16 = (int16_t)(buffer[i * MIC_CHANNELS] >> 16); // Convertir la muestra de 24 bits a 16 bits para el micrófono 1 (canal 0)
+        int16_t sample_i16 = (int16_t)(buffer[i * MIC_CHANNELS] >> 16); // Convertir la muestra de 24 bits funcionales (32 bits reales) a 16 bits para el micrófono 1 (canal 0)
         mic_mono_out[i] = sample_i16; // Almacenar la muestra convertida en el buffer de salida mono
 
         float s = (float)sample_i16; // Convertir la muestra a float para el cálculo de energía

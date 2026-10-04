@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define DMA_FRAME_NUM 512
+#define DMA_FRAME_NUM 256
 #define MIC_CHANNELS 4
 
 #define DSP_ENERGY_THRESHOLD 800.0f // Umbral de energía para considerar un evento de sonido válido

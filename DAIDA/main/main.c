@@ -109,7 +109,7 @@ void task_ui_core0(void *pvParameters) {
             int64_t current_time_us = esp_timer_get_time();
             
             if ((current_time_us - last_event_time_us) > (COOLDOWN_MS * 1000)) {
-                ESP_LOGI(TAG, ">>> SONIDO DETECTADO | Angulo: %05.1f° | Sector: %d <<<", 
+                ESP_LOGI(TAG, ">>> SONIDO DETECTADO | Angulo: %05.1f°<<<", 
                          received_event.angle, received_event.sector);
                 
                 last_event_time_us = current_time_us;

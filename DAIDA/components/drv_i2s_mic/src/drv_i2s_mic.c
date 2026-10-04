@@ -1,3 +1,5 @@
+#include "soc/i2s_reg.h"
+
 #include "drv_i2s_mic.h"
 #include "inmp441.h"         /* Constantes privadas del silicio del modulo INMP441 */
 
@@ -128,15 +130,15 @@ esp_err_t drv_i2s_mic_init(void){
         return err;
     }
 
-    // --- CIRUGÍA DE SILICIO ---
-    // 3. Encendemos el buffer de entrada de los pines físicos a nivel de registro 
-    // sin alterar la salida del Maestro.
-    PIN_INPUT_ENABLE(GPIO_PIN_MUX_REG[I2S_GPIO_BCLK]);
-    PIN_INPUT_ENABLE(GPIO_PIN_MUX_REG[I2S_GPIO_WS]);
+    // // --- CIRUGÍA DE SILICIO ---
+    // // 3. Encendemos el buffer de entrada de los pines físicos a nivel de registro 
+    // // sin alterar la salida del Maestro.
+    // PIN_INPUT_ENABLE(GPIO_PIN_MUX_REG[I2S_GPIO_BCLK]);
+    // PIN_INPUT_ENABLE(GPIO_PIN_MUX_REG[I2S_GPIO_WS]);
 
-    // 4. Enrutamos la señal de esos pines hacia el periférico Esclavo (I2S_1)
-    esp_rom_gpio_connect_in_signal(I2S_GPIO_BCLK, I2S1I_BCK_IN_IDX, false);
-    esp_rom_gpio_connect_in_signal(I2S_GPIO_WS,   I2S1I_WS_IN_IDX,  false);
+    // // 4. Enrutamos la señal de esos pines hacia el periférico Esclavo (I2S_1)
+    // esp_rom_gpio_connect_in_signal(I2S_GPIO_BCLK, I2S1I_BCK_IN_IDX, false);
+    // esp_rom_gpio_connect_in_signal(I2S_GPIO_WS,   I2S1I_WS_IN_IDX,  false);
 
 
     /* =============================================================================
@@ -168,7 +170,8 @@ esp_err_t drv_i2s_mic_init(void){
 
 
 /**
- * @brief Read audio data from the I2S channels for the INMP441 microphones.
+ * @brief Read audio data from the I2S channels for the INMP441 microphones. 
+ * It reads data from both the master and slave I2S channels, processes it, and stores it in the provided output buffer. The function also handles timeouts and error checking.
  * 
  * @param buffer_out Pointer to the output buffer where the read audio data will be stored.
  * @param buffer_size Size of the output buffer in bytes. Must be large enough to hold the data from both channels.
@@ -220,7 +223,7 @@ esp_err_t drv_i2s_mic_read(int32_t *buffer_out, size_t buffer_size, size_t *byte
         return err;
     }
 
-    // Validar que ambos canales hayan leído la misma cantidad de bytes
+    // Validar que ambos canales hayan leído la misma cantidad de bytes (2048 bytes = 256 frames)
     if (bytes_read_0 != bytes_read_1) {
         ESP_LOGE(TAG, "Desajuste en la cantidad de bytes leídos: Canal 0 = %d, Canal 1 = %d", bytes_read_0, bytes_read_1);
         return ESP_ERR_INVALID_SIZE;
@@ -232,12 +235,15 @@ esp_err_t drv_i2s_mic_read(int32_t *buffer_out, size_t buffer_size, size_t *byte
 
     size_t frames_read = bytes_read_0 / (sizeof(int32_t) * 2); // Número de frames leídos por canal
 
-    for (size_t i = 0; i < frames_read; i++) {
+    // Limpiar el frame 0 ya que no tendremos datos históricos del Esclavo para alinearlo
+    buffer_out[0] = 0; buffer_out[1] = 0; buffer_out[2] = 0; buffer_out[3] = 0;
+
+    for (size_t i = 1; i < frames_read; i++) {
        // Extraer muestras de 24 bits de cada canal y almacenarlas en el buffer de salida
        mic_1 = raw_dma_buf_0[2 * i];     // Micrófono 1 (Canal I2S 0, Slot Izquierdo)
        mic_2 = raw_dma_buf_0[2 * i + 1]; // Micrófono 2 (Canal I2S 0, Slot Derecho)
-       mic_3 = raw_dma_buf_1[2 * i];     // Micrófono 3 (Canal I2S 1, Slot Izquierdo)
-       mic_4 = raw_dma_buf_1[2 * i + 1]; // Micrófono 4 (Canal I2S 1, Slot Derecho)
+       mic_3 = raw_dma_buf_1[2 * (i - 1)];     // Micrófono 3 (Canal I2S 1, Slot Izquierdo)
+       mic_4 = raw_dma_buf_1[2 * (i - 1) + 1]; // Micrófono 4 (Canal I2S 1, Slot Derecho)
 
        // Almacenar las muestras en el buffer de salida en el orden deseado
        buffer_out [4 * i]     = mic_1; // Micrófono 1
