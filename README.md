@@ -130,6 +130,6 @@ flowchart TD
 ## 📈 Estado Actual (Roadmap)
 - [x] Definición de Requerimientos del Sistema (REQ-01 a REQ-08).
 - [x] Diseño de Arquitectura (Hardware, Memoria y RTOS).
-- [ ] Diseño Detallado y Pruebas de Integración (TDOA y DSP).
-- [ ] Implementación de Firmware y Cuantización del Modelo.
+- [x] Diseño Detallado y Pruebas de Integración (TDOA y DSP).
+- [x] Implementación de Firmware y Cuantización del Modelo.
 - [ ] Fabricación de PCB y Validación de Usuario.
