@@ -78,4 +78,6 @@ Desktop.ini
 *.sln.docstates # Visual Studio
 
 # .vscode/ settings (if you want to ignore VS Code workspace settings)
-.vscode/
+.vscode
+/components/lcd_st7789/icons/
+
