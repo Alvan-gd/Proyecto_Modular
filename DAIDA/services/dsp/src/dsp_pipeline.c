@@ -1,8 +1,6 @@
 #include "dsp_pipeline.h"
 #include "tdoa.h"
 
-#include "drv_i2s_mic.h"
-
 #include <math.h>
 #include "esp_timer.h"
 #include "esp_log.h"
@@ -67,7 +65,6 @@ esp_err_t dsp_pipeline_process(const int32_t *buffer, dsp_event_t *event_out, in
     // Inicializar la estructura de evento de DSP
     event_out->is_valid = false;
     event_out->angle = 0.0f;
-    event_out->sector = SECTOR_NONE;
 
     /* =============================================================================
      *             2: Cálculo de la energía de la señal y conversión a mono
@@ -111,7 +108,6 @@ esp_err_t dsp_pipeline_process(const int32_t *buffer, dsp_event_t *event_out, in
     }
 
     event_out->is_valid = true;
-    event_out->sector = (tdoa_sector_t)((int)((event_out->angle + 22.5f) / 45.0f) % 8);
 
     return ESP_OK;
 }
