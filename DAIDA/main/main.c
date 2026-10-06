@@ -53,7 +53,7 @@ void run_synthetic_autotest(void) {
     ESP_LOGI(TAG, "[Debug Sintético] err: %s, is_valid: %d, angle: %.2f", esp_err_to_name(err), event.is_valid, event.angle);
 
     if (err == ESP_OK && event.is_valid) {
-        ESP_LOGW(TAG, "[Sintetico] Prueba 0° -> Angulo calculado: %.2f°, Sector: %d", event.angle, event.sector);
+        ESP_LOGW(TAG, "[Sintetico] Prueba 0° -> Angulo calculado: %.2f°, Sector: %d", event.angle);
     } else {
         ESP_LOGE(TAG, "[Sintetico] Falla en la inyección de señal para 0°");
     }
@@ -110,7 +110,7 @@ void task_ui_core0(void *pvParameters) {
             
             if ((current_time_us - last_event_time_us) > (COOLDOWN_MS * 1000)) {
                 ESP_LOGI(TAG, ">>> SONIDO DETECTADO | Angulo: %05.1f°<<<", 
-                         received_event.angle, received_event.sector);
+                         received_event.angle);
                 
                 last_event_time_us = current_time_us;
             }
