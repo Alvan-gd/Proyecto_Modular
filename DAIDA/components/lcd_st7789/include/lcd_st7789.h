@@ -11,6 +11,7 @@
 #include "esp_log.h"
 #include "esp_check.h"
 
+
 // Native pin definitions based on XIAO ESP32-S3 schematic
 #define LCD_HOST            SPI2_HOST
 #define PIN_NUM_DIN         9   // Pin D10 (SPI MOSI)
@@ -19,8 +20,8 @@
 #define PIN_NUM_CD          44  // Pin D7 (Data/Command)
 
 #define PIN_NUM_MISO        -1  // Not required for write-only mode
-#define PIN_NUM_RST         -1  // Connected directly to 3.3V (no GPIO control needed)
-#define PIN_NUM_BL          -1  // Connected directly to 3.3V (no GPIO control needed)
+#define PIN_NUM_RST         -1  // Connected directly to 3.3V through a 2k resistor (no GPIO control needed)
+#define PIN_NUM_BL          -1  // Connected directly to 3.3V through a 2k resistor (no GPIO control needed)
 
 // Display resolution
 #define LCD_H_RES           240
