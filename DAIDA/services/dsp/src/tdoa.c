@@ -171,8 +171,8 @@ static float tdoa_compute_pair_lag(const int32_t *buffer, uint8_t channel_pos, u
      * ============================================================================*/
 
     // Encontrar el índice del máximo en la señal de correlación cruzada
-    const int MAX_LAG = 4;
-    float max_value = -1e9f;
+    const int MAX_LAG = 4; // esto es calculado mediante la geometría del arreglo de micrófonos y la velocidad del sonido
+    float max_value = -1e9f; // Valor inicial muy bajo para asegurar que cualquier valor de correlación lo supere
     int best_tau = 0;
 
     for (int tau = -MAX_LAG; tau <= MAX_LAG; tau++) {
@@ -286,6 +286,9 @@ esp_err_t tdoa_process(const int32_t *buffer, float *angle_out){
     // El retardo en el eje Y calculado en el tiempo corresponde a (d * sin(angulo))/c (rotacion de 90°)
     // Por lo tanto, el ángulo de llegada se puede calcular como:
     // angle = atan2(tau_y, tau_x)
+    // tau representa el retardo relativo entre los pares de micrófonos, 
+    // al estar en la misma unidad de medida (ya sea muestras o segundos), el ángulo resultante se calcula directamente sin necesidad de convertir a distancia física.
+    
 
     float angle = atan2f(tau_y, tau_x) * (180.0f / (float)M_PI); // Se convierte a grados multiplicando por (180 / π)
 

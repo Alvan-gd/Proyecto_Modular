@@ -2,7 +2,6 @@
 #include "tdoa.h"
 
 #include <math.h>
-#include "esp_timer.h"
 #include "esp_log.h"
 
 static const char *TAG = "DSP_PIPELINE"; // Tag usado para imprimir mensajes del log
