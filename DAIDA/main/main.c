@@ -1,23 +1,12 @@
 #include <stdio.h>
-#include <inttypes.h>
-#include "sdkconfig.h"
+#include <stdint.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_chip_info.h"
-#include "esp_flash.h"
-#include "esp_system.h"
+#include "freertos/queue.h"
 #include "esp_log.h"
 #include "esp_err.h"
-#include "esp_check.h"
 
-// Hardware Drivers & Libraries
-#include "lcd_st7789.h"
-#include "lcd_lvgl_ui.h"
-#include "drv2605.h"
-#include "driver/i2c_master.h"
-
-#include "haptic.h"
-#include "screen.h"
+#include "daida_compute.h"
 
 static const char *TAG = "MAIN";
 
