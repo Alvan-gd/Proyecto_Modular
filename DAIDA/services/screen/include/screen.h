@@ -1,3 +1,7 @@
+#ifndef SCREEN_H
+#define SCREEN_H
+
+#include <stdint.h>
 #include "lcd_st7789.h"
 #include "lcd_lvgl_ui.h"
 #include "esp_err.h"
@@ -8,19 +12,38 @@ typedef enum {
     HIGH_URGENCY_UI,
     SPECIAL_URGENCY_UI,
     URGENCY_MAX_UI
-}ui_urgency_t;
+} ui_urgency_t;
 
 typedef struct {
     const uint8_t* icon_bitmap;
     lv_color_t     urgency_color; 
-}daida_alert_t;
+} daida_alert_t;
 
 /**
- * @brief Inicializa el hardware LCD, LVGL y prepara los elementos de interfaz (ícono y bordes).
+ * @brief Inicializa el hardware LCD, LVGL y prepara los elementos visuales base.
  */
-esp_err_t screen_init(esp_lcd_panel_io_handle_t *ret_io_handle, esp_lcd_panel_handle_t *ret_panel_handle, lv_display_t **ret_disp);
+esp_err_t screen_init(esp_lcd_panel_io_handle_t *ret_io_handle, 
+                      esp_lcd_panel_handle_t *ret_panel_handle, 
+                      lv_display_t **ret_disp);
 
+/**
+ * @brief Convierte un ángulo en grados (0-360) al sector correspondiente del borde.
+ */
 border_zone_t angle_to_sector(uint16_t angle);
+
+/**
+ * @brief Devuelve el color LVGL asociado al nivel de urgencia.
+ */
 lv_color_t get_urgency_color(ui_urgency_t urgency);
 
-esp_err_t draw_indication(border_zone_t direction ,const uint8_t *bitmap, ui_urgency_t urgency);
+/**
+ * @brief Dibuja la indicación direccional e ícono en pantalla con protección thread-safe.
+ */
+esp_err_t draw_indication(border_zone_t direction, const uint8_t *bitmap, ui_urgency_t urgency);
+
+/**
+ * @brief Limpia la pantalla apaga los bordes e ícono activo (retorna a estado IDLE).
+ */
+esp_err_t screen_clear(void);
+
+#endif // SCREEN_H
