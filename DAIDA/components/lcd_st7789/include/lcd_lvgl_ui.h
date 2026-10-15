@@ -89,5 +89,6 @@ void init_icon(void);
  */
 void draw_icon(const uint8_t *bitmap, lv_color_t color);
 
+void clear_icon(void);
 
 #endif // LCD_LVGL_UI_H
