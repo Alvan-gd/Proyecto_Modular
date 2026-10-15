@@ -33,6 +33,17 @@ static void task_mock_ui_core1(void *pvParameters) {
 
     ESP_LOGI(TAG, "[MOCK UI] Tarea iniciada correctamente en Core %d. Esperando eventos...", xPortGetCoreID());
 
+    const char * class_names[] = {
+        "ALERTA_SISMICA",
+        "BACKGROUND_NOISE",
+        "CLAXON_AUTO",
+        "DISPAROS",
+        "DOG_BARK",
+        "NOMBRE_USUARIO",
+        "TIMBRE_CASA",
+        "UNKNOWN"
+    };
+
     while (1) {
         /* Bloqueo infinito hasta que task_daida_tinyml_classification escriba en la cola */
         if (xQueueReceive(s_ui_event_queue, &rx_event, portMAX_DELAY) == pdTRUE) {
@@ -42,7 +53,7 @@ static void task_mock_ui_core1(void *pvParameters) {
             ESP_LOGW(TAG, "[IPC RX en Core %d] Evento Acústico Recibido", xPortGetCoreID());
             ESP_LOGW(TAG, " -> Ángulo (Ataque Inicial) : %.2f°", rx_event.angle);
             ESP_LOGW(TAG, " -> Sector UI Calculado     : %u (0-7)", sector);
-            ESP_LOGW(TAG, " -> Clase TinyML (Dummy)    : %u", rx_event.audio_classification);
+            ESP_LOGW(TAG, " -> Clase TinyML    : %s", class_names[rx_event.audio_classification]);
             ESP_LOGW(TAG, "==========================================");
         }
     }
