@@ -104,8 +104,15 @@ void daida_ui_task(void *pvParameters) {
  * @brief Initializes Core 1 services (Haptics + Screen), creates the UI queue,
  *        links the compute module (Core 0), and launches the UI task on Core 1.
  */
-esp_err_t daida_ui_init(void) {
+esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
     ESP_LOGI(TAG, "Initializing Core 1 subsystems (UI and Haptics)...");
+
+    if(daida_intercore_queue == NULL){
+        ESP_LOGI(TAG,"Null queue parameter");
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    s_ui_queue = daida_intercore_queue;
 
     // 1. Initialize the haptic controller
     esp_err_t err = haptic_init(&haptic_dev);

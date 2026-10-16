@@ -20,7 +20,7 @@ typedef struct {
 /**
  * @brief Inicializa los servicios del Core 1 (Pantalla + Háptico) y crea la cola inter-core.
  */
-esp_err_t daida_ui_init(void);
+esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue);
 
 /**
  * @brief Tarea principal de FreeRTOS asignada al Core 1 para procesar la retroalimentación.

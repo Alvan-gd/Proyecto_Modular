@@ -9,15 +9,23 @@
 #include "daida_compute.h"
 #include "daida_ui.h"
 
-
+static QueueHandle_t queue;
 static const char *TAG = "MAIN_CORE1_TEST";
+
+
 
 
 void app_main(void) {
     ESP_LOGI(TAG, "=== Iniciando prueba aislada del Core 1 (UI / Háptico) ===");
 
+    queue = xQueueCreate(1, sizeof(daida_compute_event_t));
+    if (queue == NULL) {
+        ESP_LOGE(TAG, "Error initializing queue in Core 1");
+        return;
+    }
+
     // 1. Inicializar pantalla, motor háptico, cola y tarea del Core 1
-    esp_err_t ret = daida_ui_init();
+    esp_err_t ret = daida_ui_init(queue);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Error al inicializar daida_ui: %s", esp_err_to_name(ret));
         return;
