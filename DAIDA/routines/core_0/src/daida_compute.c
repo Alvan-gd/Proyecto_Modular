@@ -9,6 +9,7 @@
 
 #include "dsp_pipeline.h"
 #include "drv_i2s_mic.h"
+#include "daida_tinyml.h"
 
 static const char *TAG = "DAIDA_COMPUTE"; // Tag usado para imprimir mensajes del log
 
@@ -136,16 +137,26 @@ void task_daida_tinyml_classification(void *pvParameters) {
                 ring_buffer[i] = daida_ring_buffer[(head_snapshot + i) & (DAIDA_TINY_ML_SAMPLE_SIZE - 1)]; // Aritmetica modular para respetar el ring buffer
             }
 
-            // Aquí se llamaría a la función de inferencia de TinyML con el buffer temporal
-            ESP_LOGI(TAG, "Procesando inferencia TinyML con angulo detectado %.2f", angle); // placeholder
-            uint8_t audio_classification_result = 0; // placeholder para el resultado de la clasificación
+            // Inicializar las variables para recibir el resultado
+            daida_audio_class_t audio_classification_result = DAIDA_CLASS_UNKNOWN;
+            float confidence = 0.0f;
 
-            // Empaquetar y enviar al Core 1 (UI / Háptica)
-            daida_compute_event_t ui_event = {
-                .angle = angle,
-                .audio_classification = audio_classification_result
-            };
-            xQueueOverwrite(s_core1_ui_queue, &ui_event);
+            // Enviar el buffer a Edge Impulse
+            // ATENCIÓN AL DESFASE: Tu ring_buffer linealizado tiene 16,384 muestras, pero el modelo
+            // exige exactamente 16,000. Le pasamos el puntero a partir de la muestra 384
+            // para descartar los 24 ms más antiguos de ruido pre-trigger y mantener lo más reciente.
+            esp_err_t err = daida_tinyml_classify(&ring_buffer[384], 16000, &audio_classification_result, &confidence);
+
+            if (err == ESP_OK) {
+                // Solo si la red neuronal está muy segura (por ejemplo > 75%), lo enviamos a la UI
+                if (confidence > 0.75f) {
+                    daida_compute_event_t ui_event = {
+                        .angle = angle,
+                        .audio_classification = audio_classification_result
+                    };
+                    xQueueOverwrite(s_core1_ui_queue, &ui_event);
+                }
+            }
         }
     }
 }
