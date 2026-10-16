@@ -7,86 +7,63 @@
 #include "esp_err.h"
 
 #include "daida_compute.h"
+#include "daida_ui.h"
 
-static const char *TAG = "MAIN_TEST_HARNESS";
+static QueueHandle_t queue;
+static const char *TAG = "MAIN_CORE1_TEST";
 
-/* Handle estático de la cola IPC entre Core 0 (Compute) y Core 1 (UI Mock) */
-static QueueHandle_t s_ui_event_queue = NULL;
 
-/**
- * @brief Función auxiliar para validar en el arnés el mapeo de 360° a 8 sectores
- *        que delegaste a la capa de UI (Sectores de 45° centrados).
- */
-static uint8_t mock_ui_angle_to_sector(float angle) {
-    /* Desfase de 22.5° para centrar el Sector 0 en 0° y máscara módulo 8 (& 7) */
-    uint8_t sector = (uint8_t)((angle + 22.5f) / 45.0f) & 0x07;
-    return sector;
-}
 
-/**
- * @brief Tarea consumidora falsa (Stub) anclada estrictamente al Core 1.
- *        Permanece bloqueada con 0% de uso de CPU hasta que el Core 0
- *        finaliza la captura post-trigger (800 ms) y la inferencia.
- */
-static void task_mock_ui_core1(void *pvParameters) {
-    daida_compute_event_t rx_event;
-
-    ESP_LOGI(TAG, "[MOCK UI] Tarea iniciada correctamente en Core %d. Esperando eventos...", xPortGetCoreID());
-
-    const char * class_names[] = {
-        "ALERTA_SISMICA",
-        "BACKGROUND_NOISE",
-        "CLAXON_AUTO",
-        "DISPAROS",
-        "DOG_BARK",
-        "NOMBRE_USUARIO",
-        "TIMBRE_CASA",
-        "UNKNOWN"
-    };
-
-    while (1) {
-        /* Bloqueo infinito hasta que task_daida_tinyml_classification escriba en la cola */
-        if (xQueueReceive(s_ui_event_queue, &rx_event, portMAX_DELAY) == pdTRUE) {
-            uint8_t sector = mock_ui_angle_to_sector(rx_event.angle);
-
-            ESP_LOGW(TAG, "==========================================");
-            ESP_LOGW(TAG, "[IPC RX en Core %d] Evento Acústico Recibido", xPortGetCoreID());
-            ESP_LOGW(TAG, " -> Ángulo (Ataque Inicial) : %.2f°", rx_event.angle);
-            ESP_LOGW(TAG, " -> Sector UI Calculado     : %u (0-7)", sector);
-            ESP_LOGW(TAG, " -> Clase TinyML    : %s", class_names[rx_event.audio_classification]);
-            ESP_LOGW(TAG, "==========================================");
-        }
-    }
-}
 
 void app_main(void) {
-    ESP_LOGI(TAG, "Iniciando Test Harness en Core %d...", xPortGetCoreID());
+    ESP_LOGI(TAG, "=== Iniciando prueba aislada del Core 1 (UI / Háptico) ===");
 
-    /* 1. Crear la cola IPC de 1 elemento del tamaño de daida_compute_event_t */
-    s_ui_event_queue = xQueueCreate(1, sizeof(daida_compute_event_t));
-    if (s_ui_event_queue == NULL) {
-        ESP_LOGE(TAG, "[FATAL] Fallo al alojar s_ui_event_queue en el Heap");
+    queue = xQueueCreate(1, sizeof(daida_compute_event_t));
+    if (queue == NULL) {
+        ESP_LOGE(TAG, "Error initializing queue in Core 1");
         return;
     }
 
-    /* 2. Levantar el consumidor falso en el Core 1 ANTES de arrancar el productor */
-    BaseType_t ret = xTaskCreatePinnedToCore(
-        task_mock_ui_core1,
-        "task_mock_ui_core1",
-        4096,
-        NULL,
-        5,
-        NULL,
-        1 /* Anclada estrictamente al Core 1 */
-    );
-
-    if (ret != pdPASS) {
-        ESP_LOGE(TAG, "[FATAL] No se pudo crear task_mock_ui_core1");
+    // 1. Inicializar pantalla, motor háptico, cola y tarea del Core 1
+    esp_err_t ret = daida_ui_init(queue);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error al inicializar daida_ui: %s", esp_err_to_name(ret));
         return;
     }
 
-    /* 3. Inicializar la rutina de cómputo en el Core 0 inyectándole la cola */
-    ESP_ERROR_CHECK(daida_compute_init(s_ui_event_queue));
+    QueueHandle_t ui_queue = daida_ui_get_queue_handle();
+    if (ui_queue == NULL) {
+        ESP_LOGE(TAG, "La cola de la UI no fue creada correctamente.");
+        return;
+    }
 
-    ESP_LOGI(TAG, "Orquestación completada. app_main() liberando su stack.");
+    ESP_LOGI(TAG, "Core 1 inicializado. Enviando eventos de prueba...");
+
+    // 2. Secuencia de eventos de prueba simulando la salida del Core 0
+    daida_compute_event_t test_events[] = {
+        {.angle = 0.0f,   .audio_classification = 0}, // Alerta sísmica (Norte)
+        {.angle = 45.0f,  .audio_classification = 1}, // Claxon (Noreste)
+        {.angle = 90.0f,  .audio_classification = 2}, // Timbre (Este)
+        {.angle = 180.0f, .audio_classification = 3}, // Nombre de usuario (Sur)
+        {.angle = 270.0f, .audio_classification = 4}, // Teléfono (Oeste)
+    };
+
+    size_t num_events = sizeof(test_events) / sizeof(test_events[0]);
+    size_t idx = 0;
+
+    // 3. Bucle para alimentar la cola de la UI periódicamente
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(3000)); // Enviar un evento cada 3 segundos
+
+        daida_compute_event_t event = test_events[idx];
+
+        ESP_LOGI(TAG, "Simulando disparo -> Ángulo: %.1f°, Sonido: %u", 
+                 event.angle, event.audio_classification);
+
+        if (xQueueSend(ui_queue, &event, pdMS_TO_TICKS(100)) != pdTRUE) {
+            ESP_LOGW(TAG, "La cola de UI está llena, no se pudo enviar el evento");
+        }
+
+        idx = (idx + 1) % num_events;
+    }
 }

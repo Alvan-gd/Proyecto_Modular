@@ -242,4 +242,19 @@ void draw_icon(const uint8_t *bitmap, lv_color_t color)
 
     lv_obj_set_style_image_recolor(icon_img, color, 0);
     lv_obj_set_style_image_recolor_opa(icon_img, LV_OPA_COVER, 0);
+    // Remover la bandera de oculto para volver a mostrar el ícono
+    lv_obj_remove_flag(icon_img, LV_OBJ_FLAG_HIDDEN);
+}
+
+void clear_icon(void)
+{
+    if (icon_img == NULL) {
+        return;
+    }
+
+    // Ocultar la imagen agregando la bandera LV_OBJ_FLAG_HIDDEN
+    lv_obj_add_flag(icon_img, LV_OBJ_FLAG_HIDDEN);
+
+    // Opcional: Desvincular el puntero del bitmap en la descripción para liberar la referencia
+    icon_dsc.data = NULL;
 }

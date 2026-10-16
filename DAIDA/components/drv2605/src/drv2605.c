@@ -85,8 +85,6 @@ esp_err_t drv2605_init(gpio_num_t sda_pin, gpio_num_t scl_pin, drv2605_handle_t 
     drv2605_write_reg(dev, DRV2605_REG_RATEDV, 0x90);   // Rated Voltage
     drv2605_write_reg(dev, DRV2605_REG_CLAMPV, 0xA4);   // Overdrive Clamp Voltage
 
-
-
     *out_handle = dev;
     ESP_LOGI(TAG, "I2C bus and DRV2605L initialized correctly. Mode: Open-Loop, Rated Voltage: 0x90, Clamp Voltage: 0xA4");
     return ESP_OK;
