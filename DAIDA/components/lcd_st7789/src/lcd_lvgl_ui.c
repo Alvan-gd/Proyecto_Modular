@@ -13,6 +13,7 @@ static lv_obj_t *glow_obj = NULL;
 static lv_obj_t *black_square = NULL;
 static lv_obj_t *icon_img = NULL;
 static lv_image_dsc_t icon_dsc;
+static lv_obj_t* battery_label = NULL;
 
 
 // Lookup table matching border_zone_t enum
@@ -213,8 +214,7 @@ void illuminate_border_off(void)
     }
 }
 
-void init_icon(void)
-{
+void init_icon(void){
     icon_img = lv_image_create(lv_screen_active());
 
     lv_obj_set_pos(icon_img, ICON_X, ICON_Y);
@@ -257,4 +257,21 @@ void clear_icon(void)
 
     // Opcional: Desvincular el puntero del bitmap en la descripción para liberar la referencia
     icon_dsc.data = NULL;
+}
+
+void init_battery_label(void){
+    battery_label = lv_label_create(lv_screen_active()); 
+    lv_obj_set_pos(battery_label, 180, 240);
+    lv_obj_set_size(battery_label, 30, 20);
+    
+    lv_obj_set_style_bg_opa(battery_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(battery_label, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_color(battery_label, lv_color_hex(0xFFFFFF), 0);
+}
+
+void write_battery_level(uint16_t battery_level) {
+    if (battery_label == NULL) return;
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%u%%", battery_level);
+    lv_label_set_text(battery_label, buf);
 }

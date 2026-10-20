@@ -91,4 +91,8 @@ void draw_icon(const uint8_t *bitmap, lv_color_t color);
 
 void clear_icon(void);
 
+void init_battery_label(void);
+
+void write_battery_level(uint16_t battery_level);
+
 #endif // LCD_LVGL_UI_H
