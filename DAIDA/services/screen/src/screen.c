@@ -1,5 +1,6 @@
 #include "screen.h"
 #include "esp_lvgl_port.h" // Necesario para lvgl_port_lock/unlock
+#include "adc_daida.h"
 
 // Utility functions
 border_zone_t angle_to_sector(uint16_t angle) {
@@ -42,6 +43,7 @@ esp_err_t screen_init(
 
         illuminate_border_init();
         init_icon();
+        init_battery_label();
 
         lvgl_port_unlock();
     }
@@ -81,5 +83,14 @@ esp_err_t screen_clear(void)
         return ESP_OK;
     }
 
+    return ESP_ERR_TIMEOUT;
+}
+
+esp_err_t screen_update_battery(uint16_t battery_level) {
+    if (lvgl_port_lock(0)) {
+        write_battery_level(battery_level);
+        lvgl_port_unlock();
+        return ESP_OK;
+    }
     return ESP_ERR_TIMEOUT;
 }

@@ -46,4 +46,9 @@ esp_err_t draw_indication(border_zone_t direction, const uint8_t *bitmap, ui_urg
  */
 esp_err_t screen_clear(void);
 
+/**
+ * @brief Actualiza el texto del nivel de batería en la pantalla de forma segura.
+ */
+esp_err_t screen_update_battery(uint16_t battery_level);
+
 #endif // SCREEN_H
