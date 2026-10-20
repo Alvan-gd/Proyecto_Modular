@@ -27,7 +27,7 @@ static const ui_event_t sismic_alert = {
 static const ui_event_t car_horn = {
     .bitmap = car_bitmap,
     .urgency_level = HIGH_URGENCY_UI,
-    .sound_type = 1
+    .sound_type = 2
 };
 
 static const ui_event_t ringbell = {
@@ -114,6 +114,12 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
     
     s_ui_queue = daida_intercore_queue;
 
+    esp_err_t err = battery_service_init();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize battery service: %s", esp_err_to_name(err));
+        return err;
+    }
+
     // 1. Initialize the haptic controller
     esp_err_t err = haptic_init(&haptic_dev);
     if (err != ESP_OK) {
@@ -155,7 +161,24 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
     return ESP_OK;
 }
 
-// Función helper para enviar eventos a la cola desde main o desde otro módulo
+
 QueueHandle_t daida_ui_get_queue_handle(void) {
     return s_ui_queue;
+}
+
+static void battery_monitor_task(void *pvParameters) {
+    TickType_t last_wake_time = xTaskGetTickCount();
+    const TickType_t frequency = pdMS_TO_TICKS(10000); // Cada 10 segundos 
+
+    while (1) {
+        uint16_t battery_pct = 0;
+        if (battery_get_level(&battery_pct) == ESP_OK) {
+            screen_update_battery(battery_pct);
+            ESP_LOGI(TAG, "Battery level updated: %u%%", battery_pct);
+        } else {
+            ESP_WLOGW(TAG, "Failed to read battery level");
+        }
+
+        vTaskDelayUntil(&last_wake_time, frequency);
+    }
 }
