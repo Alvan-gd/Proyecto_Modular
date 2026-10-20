@@ -27,26 +27,33 @@ static const ui_event_t sismic_alert = {
 static const ui_event_t car_horn = {
     .bitmap = car_bitmap,
     .urgency_level = HIGH_URGENCY_UI,
-    .sound_type = 1
+    .sound_type = 2
 };
 
-static const ui_event_t ringbell = {
-    .bitmap = bell_bitmap,
-    .urgency_level = LOW_URGENCY_UI,
-    .sound_type = 2
+static const ui_event_t gunshot = {
+    .bitmap = gunshot_bitmap,
+    .urgency_level = HIGH_URGENCY_UI,
+    .sound_type = 3
+};
+
+static const ui_event_t dog_bark = {
+    .bitmap = dog_bitmap,
+    .urgency_level = MEDIUM_URGENCY_UI,
+    .sound_type = 4
 };
 
 static const ui_event_t user_name = {
     .bitmap = voice_bitmap,
     .urgency_level = SPECIAL_URGENCY_UI,
-    .sound_type = 3
+    .sound_type = 5
 };
 
-static const ui_event_t phone = {
-    .bitmap = phone_bitmap,
-    .urgency_level = HIGH_URGENCY_UI,
-    .sound_type = 4
-}; 
+static const ui_event_t ringbell = {
+    .bitmap = bell_bitmap,
+    .urgency_level = LOW_URGENCY_UI,
+    .sound_type = 6
+};
+ 
 
 /**
  * @brief Main FreeRTOS task assigned to Core 1 to process visual and haptic feedback.
@@ -75,17 +82,20 @@ void daida_ui_task(void *pvParameters) {
                 case 0:
                     feedback.event = sismic_alert;
                 break;
-                case 1:
+                case 2:
                     feedback.event = car_horn;
                 break;
-                case 2:
-                    feedback.event = ringbell;
-                break;
                 case 3:
-                    feedback.event = user_name;
+                    feedback.event = gunshot;
                 break;
                 case 4:
-                    feedback.event = phone;
+                    feedback.event = dog_bark;
+                break;
+                case 5:
+                    feedback.event = user_name;
+                break;
+                case 6:
+                    feedback.event = ringbell;
                 break;
                 default:
                 screen_clear();
@@ -126,13 +136,6 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize display: %s", esp_err_to_name(err));
         return err;
-    }
-
-    // 3. Create the local Core 1 queue to receive 'daida_compute_event_t' items
-    s_ui_queue = xQueueCreate(10, sizeof(daida_compute_event_t));
-    if (s_ui_queue == NULL) {
-        ESP_LOGE(TAG, "Failed to create UI queue");
-        return ESP_ERR_NO_MEM;
     }
 
     // 4. Create the UI and Control task pinned strictly to Core 1

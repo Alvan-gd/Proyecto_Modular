@@ -15,13 +15,13 @@ extern "C" {
  *        Mapeado alfabéticamente según la exportación de Edge Impulse.
  */
 typedef enum {
-    DAIDA_CLASS_ALERTA_SISMICA = 0,
+    DAIDA_CLASS_SISMIC_ALERT = 0,
     DAIDA_CLASS_BACKGROUND_NOISE = 1,
-    DAIDA_CLASS_CLAXON_AUTO = 2,
-    DAIDA_CLASS_DISPAROS = 3,
+    DAIDA_CLASS_CAR_HORN = 2,
+    DAIDA_CLASS_GUNSHOT = 3,
     DAIDA_CLASS_DOG_BARK = 4,
-    DAIDA_CLASS_NOMBRE_USUARIO = 5,
-    DAIDA_CLASS_TIMBRE_CASA = 6,
+    DAIDA_CLASS_USER_NAME = 5,
+    DAIDA_CLASS_RINGBELL = 6,
     DAIDA_CLASS_UNKNOWN = 255
 } daida_audio_class_t;
 

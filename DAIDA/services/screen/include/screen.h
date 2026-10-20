@@ -29,7 +29,7 @@ esp_err_t screen_init(esp_lcd_panel_io_handle_t *ret_io_handle,
 /**
  * @brief Convierte un ángulo en grados (0-360) al sector correspondiente del borde.
  */
-border_zone_t angle_to_sector(uint16_t angle);
+border_zone_t angle_to_sector(float angle);
 
 /**
  * @brief Devuelve el color LVGL asociado al nivel de urgencia.
