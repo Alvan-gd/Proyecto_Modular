@@ -11,6 +11,7 @@ typedef struct {
     const uint8_t *bitmap;
     ui_urgency_t urgency_level;
     uint8_t sound_type;
+    char label_text[];
 }ui_event_t;
 
 typedef struct {

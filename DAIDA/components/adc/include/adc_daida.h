@@ -1,3 +1,6 @@
+#ifndef ADC_DAIDA_H
+#define ADC_DAIDA_H
+
 #include <stdint.h>
 #include "esp_err.h"
 #include "hal/adc_types.h"
@@ -36,3 +39,4 @@ esp_err_t adc_init(adc_xiao_handle_t *out_handle);
  */
 esp_err_t adc_read(adc_xiao_handle_t dev, int *out_raw);
 
+#endif // ADC_DAIDA_H
