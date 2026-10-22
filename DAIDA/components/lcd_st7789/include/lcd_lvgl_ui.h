@@ -19,6 +19,8 @@
 #include "firetruck.h"
 #include "car.h"
 #include "ambulance.h"
+#include "dog.h"
+#include "gunshot.h"
 
 #include "daida_bitmap.h"
 

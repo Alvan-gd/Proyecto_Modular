@@ -71,6 +71,8 @@ env/
 *Backup*.pdsprj
 *Backup*.DSN
 Last-Saved-*.pdsprj
+*.lck
+.history/
 
 # Archivos de respaldo de KiCad (Módulos legados)
 *.bck

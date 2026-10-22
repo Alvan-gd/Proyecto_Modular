@@ -1,0 +1,8 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "inmp441") (type "KiCad") (uri "C:/Users/FRED/Downloads/foot_prints.pretty") (options "") (descr ""))
+	(lib (name "Library") (type "KiCad") (uri "${KIPRJMOD}/Footprints/Library.pretty") (options "") (descr ""))
+	(lib (name "Footprints") (type "KiCad") (uri "${KIPRJMOD}/Footprints/Library.pretty/Footprints.pretty") (options "") (descr ""))
+	(lib (name "Library") (type "KiCad") (uri "${KIPRJMOD}/Footprints/Library.pretty/Footprints.pretty/Library.pretty") (options "") (descr ""))
+	(lib (name "Footprints") (type "KiCad") (uri "${KIPRJMOD}/Footprints/Footprints.pretty") (options "") (descr ""))
+)

@@ -52,7 +52,6 @@ esp_err_t haptic_play_pattern(drv2605_handle_t haptic_dev, const uint8_t *patter
         ESP_LOGE(TAG, "Error triggering haptic feedback");
         return ret;
     }
-    ESP_LOGI(TAG, "Haptic pattern played succesfully.");
     return ESP_OK;
 }
 

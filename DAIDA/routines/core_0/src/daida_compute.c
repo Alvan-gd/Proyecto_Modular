@@ -149,7 +149,7 @@ void task_daida_tinyml_classification(void *pvParameters) {
 
             if (err == ESP_OK) {
                 // Solo si la red neuronal está muy segura (por ejemplo > 75%), lo enviamos a la UI
-                if (confidence > 0.75f) {
+                if (confidence > 0.95f) {
                     daida_compute_event_t ui_event = {
                         .angle = angle,
                         .audio_classification = audio_classification_result

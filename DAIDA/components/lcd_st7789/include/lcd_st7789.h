@@ -15,7 +15,7 @@
 // Native pin definitions based on XIAO ESP32-S3 schematic
 #define LCD_HOST            SPI2_HOST
 #define PIN_NUM_DIN         9   // Pin D10 (SPI MOSI)
-#define PIN_NUM_CS          8   // Pin D9
+#define PIN_NUM_CS          43   // Pin D6
 #define PIN_NUM_CLK         7   // Pin D8 (SPI Clock)
 #define PIN_NUM_CD          44  // Pin D7 (Data/Command)
 

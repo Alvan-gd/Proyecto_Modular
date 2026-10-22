@@ -5,16 +5,10 @@
 #include "freertos/queue.h"
 
 // Utility functions
-border_zone_t angle_to_sector(uint16_t angle) {
-    angle = angle % 360;
-    if (angle >= 338 || angle < 23)   return SECTOR_0;    // TOP
-    if (angle >= 23  && angle < 68)   return SECTOR_45;   // TOP_RIGHT
-    if (angle >= 68  && angle < 113)  return SECTOR_90;   // RIGHT
-    if (angle >= 113 && angle < 158)  return SECTOR_135;  // BOTTOM_RIGHT
-    if (angle >= 158 && angle < 203)  return SECTOR_180;  // BOTTOM
-    if (angle >= 203 && angle < 248)  return SECTOR_225;  // BOTTOM_LEFT
-    if (angle >= 248 && angle < 293)  return SECTOR_270;  // LEFT
-    return SECTOR_315;                                    // TOP_LEFT
+border_zone_t angle_to_sector(float angle) {
+    /* Desfase de 22.5° para centrar el Sector 0 en 0° y máscara módulo 8 (& 7) */
+    uint8_t sector = (uint8_t)((angle + 22.5f) / 45.0f) & 0x07;
+    return sector;                                    // TOP_LEFT
 }
 
 lv_color_t get_urgency_color(ui_urgency_t urgency) {
