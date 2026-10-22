@@ -21,7 +21,8 @@ static QueueHandle_t s_ui_queue = NULL;
 static const ui_event_t sismic_alert = {
     .bitmap = alarm_bitmap,
     .urgency_level = HIGH_URGENCY_UI,
-    .sound_type = 0
+    .sound_type = 0,
+    .label_text = "ALERTA SÍSMICA"
 };
 
 static const ui_event_t car_horn = {
@@ -101,7 +102,7 @@ void daida_ui_task(void *pvParameters) {
                 screen_clear();
                 break;
             }
-            draw_indication(feedback.sector, feedback.event.bitmap, feedback.event.urgency_level);
+            draw_indication(feedback.sector, feedback.event.bitmap, feedback.event.urgency_level,feedback.event.label_text);
             if (feedback.event.urgency_level == LOW_URGENCY_UI) haptic_play_low_urgency(haptic_dev);
             if (feedback.event.urgency_level == MEDIUM_URGENCY_UI) haptic_play_medium_urgency(haptic_dev);
             if (feedback.event.urgency_level == HIGH_URGENCY_UI) haptic_play_high_urgency(haptic_dev);
@@ -124,8 +125,14 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
     
     s_ui_queue = daida_intercore_queue;
 
+    esp_err_t err = battery_service_init();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize battery service: %s", esp_err_to_name(err));
+        return err;
+    }
+
     // 1. Initialize the haptic controller
-    esp_err_t err = haptic_init(&haptic_dev);
+    err = haptic_init(&haptic_dev);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize haptic controller: %s", esp_err_to_name(err));
         return err;
@@ -138,7 +145,9 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
         return err;
     }
 
-    // 4. Create the UI and Control task pinned strictly to Core 1
+    draw_daida_splash_screen();
+
+    // 3. Create the UI and Control task pinned strictly to Core 1
     BaseType_t task_created = xTaskCreatePinnedToCore(
         daida_ui_task,          // Task function
         "daida_ui_task",        // Task name
@@ -158,7 +167,24 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
     return ESP_OK;
 }
 
-// Función helper para enviar eventos a la cola desde main o desde otro módulo
+
 QueueHandle_t daida_ui_get_queue_handle(void) {
     return s_ui_queue;
+}
+
+static void battery_monitor_task(void *pvParameters) {
+    TickType_t last_wake_time = xTaskGetTickCount();
+    const TickType_t frequency = pdMS_TO_TICKS(300000);  
+
+    while (1) {
+        uint16_t battery_pct = 0;
+        if (battery_get_level(&battery_pct) == ESP_OK) {
+            screen_update_battery(battery_pct);
+            ESP_LOGI(TAG, "Battery level updated: %u%%", battery_pct);
+        } else {
+            ESP_LOGW(TAG, "Failed to read battery level");
+        }
+
+        vTaskDelayUntil(&last_wake_time, frequency);
+    }
 }

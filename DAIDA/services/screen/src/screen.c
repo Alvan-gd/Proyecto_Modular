@@ -1,5 +1,8 @@
 #include "screen.h"
 #include "esp_lvgl_port.h" // Necesario para lvgl_port_lock/unlock
+#include "adc_daida.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 
 // Utility functions
 border_zone_t angle_to_sector(float angle) {
@@ -36,6 +39,8 @@ esp_err_t screen_init(
 
         illuminate_border_init();
         init_icon();
+        init_battery_label();
+        init_icon_label();
 
         lvgl_port_unlock();
     }
@@ -46,18 +51,16 @@ esp_err_t screen_init(
 esp_err_t draw_indication(
     border_zone_t direction,
     const uint8_t *bitmap,
-    ui_urgency_t urgency) 
-{
+    ui_urgency_t urgency,
+    char text[]) {
     if (direction >= BORDER_ZONE_MAX || bitmap == NULL || urgency >= URGENCY_MAX_UI) {
         return ESP_ERR_INVALID_ARG;
     }
-
     lv_color_t color = get_urgency_color(urgency);
-
-    // Proteger las actualizaciones de la UI contra condiciones de carrera de FreeRTOS
     if (lvgl_port_lock(0)) {
         illuminate_border_zone(direction, color);
         draw_icon(bitmap, color);
+        write_icon_label(text,color);
         lvgl_port_unlock();
         return ESP_OK;
     }
@@ -68,12 +71,39 @@ esp_err_t draw_indication(
 esp_err_t screen_clear(void) 
 {
     if (lvgl_port_lock(0)) {
-        // Apagar iluminación del borde y limpiar/ocultar ícono
         illuminate_border_off();
         clear_icon();
+        clear_icon_label();
         lvgl_port_unlock();
         return ESP_OK;
     }
 
     return ESP_ERR_TIMEOUT;
+}
+
+esp_err_t screen_update_battery(uint16_t battery_level) {
+    if (lvgl_port_lock(0)) {
+        write_battery_level(battery_level);
+        lvgl_port_unlock();
+        return ESP_OK;
+    }
+    return ESP_ERR_TIMEOUT;
+}
+
+esp_err_t draw_daida_splash_screen(void){
+    if (lvgl_port_lock(0)) {
+        init_splash_screen();
+        draw_splash_screen(); // Color blanco
+        lvgl_port_unlock();
+    }
+
+    // Mantener durante 5 segundos
+    vTaskDelay(pdMS_TO_TICKS(5000));
+
+    // Quitar la pantalla de inicio y dejar la UI lista para operar
+    if (lvgl_port_lock(0)) {
+        clear_splash_screen();
+        lvgl_port_unlock();
+    }
+    return ESP_OK;
 }

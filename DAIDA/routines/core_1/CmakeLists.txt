@@ -1,5 +1,5 @@
 idf_component_register(
     SRCS "src/daida_ui.c"
     INCLUDE_DIRS "include"
-    REQUIRES screen haptic core_0
+    REQUIRES screen haptic core_0 battery
 )

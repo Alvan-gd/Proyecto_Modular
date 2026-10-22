@@ -39,11 +39,18 @@ lv_color_t get_urgency_color(ui_urgency_t urgency);
 /**
  * @brief Dibuja la indicación direccional e ícono en pantalla con protección thread-safe.
  */
-esp_err_t draw_indication(border_zone_t direction, const uint8_t *bitmap, ui_urgency_t urgency);
+esp_err_t draw_indication(border_zone_t direction, const uint8_t *bitmap, ui_urgency_t urgency, char text[]);
 
 /**
  * @brief Limpia la pantalla apaga los bordes e ícono activo (retorna a estado IDLE).
  */
 esp_err_t screen_clear(void);
+
+/**
+ * @brief Actualiza el texto del nivel de batería en la pantalla de forma segura.
+ */
+esp_err_t screen_update_battery(uint16_t battery_level);
+
+esp_err_t draw_daida_splash_screen(void);
 
 #endif // SCREEN_H

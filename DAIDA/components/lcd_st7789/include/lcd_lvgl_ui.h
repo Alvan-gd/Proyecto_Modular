@@ -22,6 +22,8 @@
 #include "dog.h"
 #include "gunshot.h"
 
+#include "daida_bitmap.h"
+
 // Defined color macros mapped to ST7789 panel logic
 #define ST7789_COLOR_GREEN     lv_color_hex(0x0000ff) // Pure green
 #define ST7789_COLOR_YELLOW    lv_color_hex(0xff00ee) // Red  + Green 
@@ -92,5 +94,30 @@ void init_icon(void);
 void draw_icon(const uint8_t *bitmap, lv_color_t color);
 
 void clear_icon(void);
+
+void init_battery_label(void);
+
+void write_battery_level(uint16_t battery_level);
+
+void init_icon_label(void);
+
+void write_icon_label(char string[], lv_color_t color);
+
+void clear_icon_label(void);
+
+/**
+ * @brief Inicializa el objeto de imagen para la pantalla de inicio (Splash Screen).
+ */
+void init_splash_screen(void);
+
+/**
+ * @brief Muestra el bitmap de la pantalla de inicio a pantalla completa.
+ */
+void draw_splash_screen(void);
+
+/**
+ * @brief Oculta y limpia la pantalla de inicio.
+ */
+void clear_splash_screen(void);
 
 #endif // LCD_LVGL_UI_H
