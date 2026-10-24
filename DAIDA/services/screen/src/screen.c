@@ -41,7 +41,6 @@ esp_err_t screen_init(
         init_icon();
         init_battery_label();
         init_icon_label();
-
         lvgl_port_unlock();
     }
 
@@ -77,7 +76,6 @@ esp_err_t screen_clear(void)
         lvgl_port_unlock();
         return ESP_OK;
     }
-
     return ESP_ERR_TIMEOUT;
 }
 
@@ -90,20 +88,12 @@ esp_err_t screen_update_battery(uint16_t battery_level) {
     return ESP_ERR_TIMEOUT;
 }
 
-esp_err_t draw_daida_splash_screen(void){
+esp_err_t draw_daida_splash_screen(void) {
     if (lvgl_port_lock(0)) {
-        init_splash_screen();
-        draw_splash_screen(); // Color blanco
+        draw_splash_screen(); 
         lvgl_port_unlock();
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        return ESP_OK;
     }
-
-    // Mantener durante 5 segundos
-    vTaskDelay(pdMS_TO_TICKS(5000));
-
-    // Quitar la pantalla de inicio y dejar la UI lista para operar
-    if (lvgl_port_lock(0)) {
-        clear_splash_screen();
-        lvgl_port_unlock();
-    }
-    return ESP_OK;
+    return ESP_ERR_TIMEOUT;
 }

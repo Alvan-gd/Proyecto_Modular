@@ -8,9 +8,9 @@ def convert_png_to_1bpp(input_file, output_file):
     image = Image.open(input_file)
 
     # Ensure exactly 64x64
-    if image.size != (64, 64):
+    if image.size != (128, 128):
         raise ValueError(
-            f"Image must be 64x64, but got {image.size[0]}x{image.size[1]}"
+            f"Image must be 128X128, but got {image.size[0]}x{image.size[1]}"
         )
 
     # Convert to grayscale
@@ -21,10 +21,10 @@ def convert_png_to_1bpp(input_file, output_file):
     data = []
 
     # Process each row
-    for y in range(64):
+    for y in range(128):
         current_byte = 0
 
-        for x in range(64):
+        for x in range(128):
             # Black = 1, white = 0
             if pixels[x, y] < 128:
                 current_byte |= (1 << (7 - (x % 8)))
@@ -41,11 +41,11 @@ def convert_png_to_1bpp(input_file, output_file):
         f.write("#pragma once\n")
         f.write("#include <stdint.h>\n\n")
 
-        f.write("#define ICON_WIDTH 64\n")
-        f.write("#define ICON_HEIGHT 64\n\n")
+        f.write("#define ICON_WIDTH 128\n")
+        f.write("#define ICON_HEIGHT 128\n\n")
 
         f.write(
-            f"static const uint8_t {array_name}[512] = {{\n"
+            f"static const uint8_t {array_name}[2048] = {{\n"
         )
 
         for i, byte in enumerate(data):

@@ -12,17 +12,12 @@
 #include "esp_lcd_types.h"
 #include "alarm.h"
 #include "bell.h"
-#include "danger.h"
-#include "phone.h"
 #include "voice.h"
-#include "police.h"
-#include "firetruck.h"
 #include "car.h"
-#include "ambulance.h"
 #include "dog.h"
 #include "gunshot.h"
 
-#include "daida_bitmap.h"
+#include "daida.h"
 
 // Defined color macros mapped to ST7789 panel logic
 #define ST7789_COLOR_GREEN     lv_color_hex(0x0000ff) // Pure green
@@ -115,9 +110,6 @@ void init_splash_screen(void);
  */
 void draw_splash_screen(void);
 
-/**
- * @brief Oculta y limpia la pantalla de inicio.
- */
-void clear_splash_screen(void);
+
 
 #endif // LCD_LVGL_UI_H

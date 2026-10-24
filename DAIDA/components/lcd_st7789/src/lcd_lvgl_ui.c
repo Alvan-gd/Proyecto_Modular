@@ -2,15 +2,12 @@
 #include "lcd_st7789.h" 
 #include "lvgl.h"
 
-#define ICON_X       88
-#define ICON_Y       108
-#define ICON_WIDTH   64
-#define ICON_HEIGHT  64
+#define ICON_X       56
+#define ICON_Y       76
+#define ICON_WIDTH   128
+#define ICON_HEIGHT  128
 #define ICON_SIZE    (ICON_WIDTH * ICON_HEIGHT / 8)
 
-#define SPLASH_WIDTH   240
-#define SPLASH_HEIGHT  280
-#define SPLASH_SIZE    (SPLASH_WIDTH * SPLASH_HEIGHT / 8) // 8400 bytes
 
 static const char *TAG = "lcd_lvgl_ui";
 static lv_obj_t *glow_obj = NULL;
@@ -19,8 +16,6 @@ static lv_obj_t *icon_img = NULL;
 static lv_image_dsc_t icon_dsc;
 static lv_obj_t* battery_label = NULL;
 static lv_obj_t *icon_label = NULL;
-static lv_obj_t *splash_img = NULL;
-static lv_image_dsc_t splash_dsc;
 
 
 // Lookup table matching border_zone_t enum
@@ -268,12 +263,12 @@ void clear_icon(void)
 
 void init_battery_label(void){
     battery_label = lv_label_create(lv_screen_active()); 
-    lv_obj_set_pos(battery_label, 180, 240);
-    lv_obj_set_size(battery_label, 30, 20);
+    lv_obj_set_pos(battery_label, 180, 40);
     
     lv_obj_set_style_bg_opa(battery_label, LV_OPA_COVER, 0);
     lv_obj_set_style_bg_color(battery_label, lv_color_hex(0x000000), 0);
     lv_obj_set_style_text_color(battery_label, lv_color_hex(0xFFFFFF), 0);
+    lv_label_set_text(battery_label,"");
 }
 
 void write_battery_level(uint16_t battery_level) {
@@ -283,18 +278,20 @@ void write_battery_level(uint16_t battery_level) {
     lv_label_set_text(battery_label, buf);
 }
 
-
 void init_icon_label(void){
     icon_label = lv_label_create(lv_screen_active()); 
-    lv_obj_set_pos(icon_label, ICON_X, ICON_Y - ICON_HEIGHT - 10);    
+    lv_obj_set_pos(icon_label,ICON_X,ICON_Y + ICON_HEIGHT + 10);
     lv_obj_set_style_bg_opa(icon_label, LV_OPA_TRANSP, 0);
     lv_obj_add_flag(icon_label, LV_OBJ_FLAG_HIDDEN);
 }
 
 void write_icon_label(char string[], lv_color_t color){
     if (icon_label == NULL) return;
+    
     lv_label_set_text(icon_label, string);
     lv_obj_set_style_text_color(icon_label, color, 0);
+    lv_coord_t current_y = lv_obj_get_y(icon_label);
+    lv_obj_align(icon_label, LV_ALIGN_TOP_MID, 0, current_y);
     lv_obj_remove_flag(icon_label, LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -304,43 +301,6 @@ void clear_icon_label(void){
     lv_label_set_text(icon_label, "");
 }
 
-void init_splash_screen(void) {
-    // Se crea ocupando la pantalla activa
-    splash_img = lv_image_create(lv_screen_active());
-    lv_obj_set_pos(splash_img, 0, 0);
-    lv_obj_set_size(splash_img, SPLASH_WIDTH, SPLASH_HEIGHT);
-
-    splash_dsc.header.magic = LV_IMAGE_HEADER_MAGIC;
-    splash_dsc.header.cf = LV_COLOR_FORMAT_A1;
-    splash_dsc.header.flags = 0;
-    splash_dsc.header.w = SPLASH_WIDTH;
-    splash_dsc.header.h = SPLASH_HEIGHT;
-    splash_dsc.header.stride = SPLASH_WIDTH / 8; // 30 bytes
-    splash_dsc.data_size = SPLASH_SIZE;
-    splash_dsc.data = NULL;
-
-    // Oculto por defecto hasta que se llame
-    lv_obj_add_flag(splash_img, LV_OBJ_FLAG_HIDDEN);
-}
-
 void draw_splash_screen(void) {
-    if (splash_img == NULL) {
-        return;
-    }
-
-    splash_dsc.data = daida_bitmap;
-    lv_image_set_src(splash_img, &splash_dsc);
-
-    lv_obj_set_style_image_recolor(splash_img, lv_color_hex(0xFFFFFF)  , 0);
-    lv_obj_set_style_image_recolor_opa(splash_img, LV_OPA_COVER, 0);
-    
-    lv_obj_remove_flag(splash_img, LV_OBJ_FLAG_HIDDEN);
-}
-
-void clear_splash_screen(void) {
-    if (splash_img == NULL) {
-        return;
-    }
-    lv_obj_add_flag(splash_img, LV_OBJ_FLAG_HIDDEN);
-    splash_dsc.data = NULL;
+    draw_icon(daida_bitmap,lv_color_hex(0xFFFFFF));
 }
