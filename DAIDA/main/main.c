@@ -48,6 +48,7 @@ void app_main(void) {
         daida_boot_fail_handler(compute_to_ui_queue);
     }
     ESP_LOGI(TAG, "Core 1 inicializado. Interfaz de usuario en ejecución...");
+    
 
     // 3. Inicializar subsistema productor (Core 0: I2S DMA, TDoA y TinyML)
     err = daida_compute_init(compute_to_ui_queue);

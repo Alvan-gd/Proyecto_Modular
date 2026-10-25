@@ -12,17 +12,18 @@
 #include "esp_lcd_types.h"
 #include "alarm.h"
 #include "bell.h"
-#include "danger.h"
-#include "phone.h"
 #include "voice.h"
-#include "police.h"
-#include "firetruck.h"
 #include "car.h"
-#include "ambulance.h"
 #include "dog.h"
 #include "gunshot.h"
 
-#include "daida_bitmap.h"
+#include "daida.h"
+
+#include "battery_20.h"
+#include "battery_40.h"
+#include "battery_60.h"
+#include "battery_80.h"
+#include "battery_100.h"
 
 // Defined color macros mapped to ST7789 panel logic
 #define ST7789_COLOR_GREEN     lv_color_hex(0x0000ff) // Pure green
@@ -106,18 +107,16 @@ void write_icon_label(char string[], lv_color_t color);
 void clear_icon_label(void);
 
 /**
- * @brief Inicializa el objeto de imagen para la pantalla de inicio (Splash Screen).
- */
-void init_splash_screen(void);
-
-/**
  * @brief Muestra el bitmap de la pantalla de inicio a pantalla completa.
  */
 void draw_splash_screen(void);
 
-/**
- * @brief Oculta y limpia la pantalla de inicio.
- */
-void clear_splash_screen(void);
+void init_battery_icon(void);
+
+void draw_battery_icon(uint8_t battery_level);
+
+void clear_battery_icon(void);
+
+
 
 #endif // LCD_LVGL_UI_H

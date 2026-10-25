@@ -61,7 +61,6 @@ static const ui_event_t ringbell = {
  */
 void daida_ui_task(void *pvParameters) {
     daida_compute_event_t received_event;
-
     ESP_LOGI(TAG, "UI and Control task started on Core 1");
 
     while (1) {
@@ -125,11 +124,13 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
     
     s_ui_queue = daida_intercore_queue;
 
+    
     esp_err_t err = battery_service_init();
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize battery service: %s", esp_err_to_name(err));
         return err;
     }
+        
 
     // 1. Initialize the haptic controller
     err = haptic_init(&haptic_dev);
@@ -145,8 +146,6 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
         return err;
     }
 
-    draw_daida_splash_screen();
-
     // 3. Create the UI and Control task pinned strictly to Core 1
     BaseType_t task_created = xTaskCreatePinnedToCore(
         daida_ui_task,          // Task function
@@ -158,10 +157,29 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
         1                       // Pinned to Core 1
     );
 
+    // 4. Create the battery reading task and pin it to core 1
+        BaseType_t task_created_2 = xTaskCreatePinnedToCore(
+        battery_monitor_task,          // Task function
+        "battery_monitor_task",        // Task name
+        4096,                   // Stack size in bytes
+        NULL,                   // Parameters
+        4,                      // Priority
+        NULL,                   // Task handle
+        1                       // Pinned to Core 1
+    );
+
     if (task_created != pdPASS) {
         ESP_LOGE(TAG, "Failed to create daida_ui_task");
         return ESP_ERR_NO_MEM;
     }
+
+    if (task_created_2 != pdPASS) {
+        ESP_LOGE(TAG, "Failed to create battery task");
+        return ESP_ERR_NO_MEM;
+    }
+
+    draw_daida_splash_screen();
+    screen_clear();
 
     ESP_LOGI(TAG, "UI subsystems successfully initialized on Core 1");
     return ESP_OK;
@@ -174,7 +192,7 @@ QueueHandle_t daida_ui_get_queue_handle(void) {
 
 static void battery_monitor_task(void *pvParameters) {
     TickType_t last_wake_time = xTaskGetTickCount();
-    const TickType_t frequency = pdMS_TO_TICKS(300000);  
+    const TickType_t frequency = pdMS_TO_TICKS(30000);  
 
     while (1) {
         uint16_t battery_pct = 0;
