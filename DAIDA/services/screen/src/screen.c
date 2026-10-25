@@ -41,6 +41,7 @@ esp_err_t screen_init(
         init_icon();
         init_battery_label();
         init_icon_label();
+        init_battery_icon();
         lvgl_port_unlock();
     }
 
@@ -82,6 +83,7 @@ esp_err_t screen_clear(void)
 esp_err_t screen_update_battery(uint16_t battery_level) {
     if (lvgl_port_lock(0)) {
         write_battery_level(battery_level);
+        draw_battery_icon(battery_level);
         lvgl_port_unlock();
         return ESP_OK;
     }
