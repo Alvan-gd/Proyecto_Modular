@@ -12,6 +12,7 @@ static const uint8_t SPECIAL_URGENCY_PATTERN[] = {ALERT_1000, STRONG_BUZZ, STRON
 esp_err_t haptic_init(drv2605_handle_t *out_handle)
 {
     if (out_handle == NULL) {
+        ESP_LOGW(TAG,"OUT HANDLE == NULL");
         return ESP_ERR_INVALID_ARG;
     }
     // 1. Init device DRV2605L and I2C bus
