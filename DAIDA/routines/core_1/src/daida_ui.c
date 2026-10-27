@@ -28,31 +28,36 @@ static const ui_event_t sismic_alert = {
 static const ui_event_t car_horn = {
     .bitmap = car_bitmap,
     .urgency_level = HIGH_URGENCY_UI,
-    .sound_type = 2
+    .sound_type = 2,
+    .label_text = "CLAXON DE AUTO"
 };
 
-static const ui_event_t gunshot = {
-    .bitmap = gunshot_bitmap,
-    .urgency_level = HIGH_URGENCY_UI,
-    .sound_type = 3
-};
+//static const ui_event_t gunshot = {
+//    .bitmap = gunshot_bitmap,
+//    .urgency_level = HIGH_URGENCY_UI,
+//    .sound_type = 3,
+//    .label_text = "DISPARO DE ARMA"
+//};
 
 static const ui_event_t dog_bark = {
     .bitmap = dog_bitmap,
     .urgency_level = MEDIUM_URGENCY_UI,
-    .sound_type = 4
+    .sound_type = 5,
+    .label_text = "LADRIDO DE PERRO"
 };
 
 static const ui_event_t user_name = {
     .bitmap = voice_bitmap,
     .urgency_level = SPECIAL_URGENCY_UI,
-    .sound_type = 5
+    .sound_type = 4,
+    .label_text = "NOMBRE DE USUARIO"
 };
 
 static const ui_event_t ringbell = {
     .bitmap = bell_bitmap,
     .urgency_level = LOW_URGENCY_UI,
-    .sound_type = 6
+    .sound_type = 6,
+    .label_text = "TIMBRE DE PUERTA"
 };
  
 
@@ -87,7 +92,7 @@ void daida_ui_task(void *pvParameters) {
                     feedback.event = car_horn;
                 break;
                 case 3:
-                    feedback.event = gunshot;
+                    //feedback.event = gunshot;
                 break;
                 case 4:
                     feedback.event = dog_bark;
@@ -131,13 +136,13 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
         return err;
     }
 
-    // 1. Initialize the haptic controller
-    err = haptic_init(&haptic_dev);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize haptic controller: %s", esp_err_to_name(err));
-        return err;
-    }
-
+    //// 1. Initialize the haptic controller
+    //err = haptic_init(&haptic_dev);
+    //if (err != ESP_OK) {
+    //    ESP_LOGE(TAG, "Failed to initialize haptic controller: %s", esp_err_to_name(err));
+    //    return err;
+    //}
+//
     // 2. Initialize the display and graphics system (LVGL)
     err = screen_init(&io_handle, &panel_handle, &disp);
     if (err != ESP_OK) {

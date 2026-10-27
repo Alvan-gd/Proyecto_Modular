@@ -47,7 +47,7 @@
 #include "edge-impulse-sdk/classifier/inferencing_engines/engines.h"
 #include "edge-impulse-sdk/classifier/postprocessing/ei_postprocessing_common.h"
 
-const char* ei_classifier_inferencing_categories_1125042_1[] = { "Alerta_sismica", "Background_noise", "Claxon_auto", "Disparos", "Dog_Bark", "Nombre_usuario", "Timbre_casa" };
+const char* ei_classifier_inferencing_categories_1125042_1[] = { "Alerta_sismica", "Background_noise", "Claxon_auto", "Disparos", "Nombre_usuario", "Perros", "Timbre_casa" };
 
 ei_dsp_named_axis_t ei_dsp_config_1125042_6_named_axes[] = {
     { .name = "Signal", .axis = 0 }
@@ -150,7 +150,7 @@ const ei_impulse_t impulse_1125042_1 = {
     .project_name = "DAIDA",
     .impulse_id = 1,
     .impulse_name = "Impulse #1",
-    .deploy_version = 4,
+    .deploy_version = 5,
 
     .nn_input_frame_size = 1600,
     .raw_sample_count = 16000,
