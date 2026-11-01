@@ -17,44 +17,43 @@ static lv_display_t *disp = NULL;
 // Local queue handle for Core 1 to receive events processed by Core 0
 static QueueHandle_t s_ui_queue = NULL;
 
-// Events definitions (sound_type numbers are preeliminary)
+// Events definitions 
 static const ui_event_t sismic_alert = {
     .bitmap = alarm_bitmap,
     .urgency_level = HIGH_URGENCY_UI,
     .sound_type = 0,
-    .label_text = "ALERTA SÍSMICA"
+    .label_text = "ALERTA SISMICA"
+};
+
+static const ui_event_t ambulance = {
+    .bitmap = ambulance_bitmap,
+    .urgency_level = MEDIUM_URGENCY_UI,
+    .sound_type = 1,
+    .label_text = "VEHICULO DE EMERGENCIA"
 };
 
 static const ui_event_t car_horn = {
     .bitmap = car_bitmap,
     .urgency_level = HIGH_URGENCY_UI,
-    .sound_type = 2
+    .sound_type = 3,
+    .label_text = "CLAXON DE AUTO"
 };
 
-static const ui_event_t gunshot = {
-    .bitmap = gunshot_bitmap,
-    .urgency_level = HIGH_URGENCY_UI,
-    .sound_type = 3
-};
-
-static const ui_event_t dog_bark = {
-    .bitmap = dog_bitmap,
-    .urgency_level = MEDIUM_URGENCY_UI,
-    .sound_type = 4
-};
-
-static const ui_event_t user_name = {
+static const ui_event_t username = {
     .bitmap = voice_bitmap,
     .urgency_level = SPECIAL_URGENCY_UI,
-    .sound_type = 5
+    .sound_type = 4,
+    .label_text = "NOMBRE DEL USUARIO"
 };
 
-static const ui_event_t ringbell = {
-    .bitmap = bell_bitmap,
+static const ui_event_t dog = {
+    .bitmap = dog_bitmap,
     .urgency_level = LOW_URGENCY_UI,
-    .sound_type = 6
+    .sound_type = 5,
+    .label_text = "LADRIDO DE PERRO"
 };
- 
+
+
 
 /**
  * @brief Main FreeRTOS task assigned to Core 1 to process visual and haptic feedback.
@@ -81,25 +80,22 @@ void daida_ui_task(void *pvParameters) {
             switch (sound_type){
                 case 0:
                     feedback.event = sismic_alert;
-                break;
-                case 2:
-                    feedback.event = car_horn;
-                break;
+                    break;
+                case 1:
+                    feedback.event = ambulance;
+                    break;
                 case 3:
-                    feedback.event = gunshot;
-                break;
+                    feedback.event = car_horn;
+                    break;
                 case 4:
-                    feedback.event = dog_bark;
-                break;
+                    feedback.event = username;
+                    break;
                 case 5:
-                    feedback.event = user_name;
-                break;
-                case 6:
-                    feedback.event = ringbell;
-                break;
+                    feedback.event = dog;
+                    break;
                 default:
-                screen_clear();
-                break;
+                    screen_clear();
+                    break;
             }
             draw_indication(feedback.sector, feedback.event.bitmap, feedback.event.urgency_level,feedback.event.label_text);
             if (feedback.event.urgency_level == LOW_URGENCY_UI) haptic_play_low_urgency(haptic_dev);
@@ -192,7 +188,7 @@ QueueHandle_t daida_ui_get_queue_handle(void) {
 
 static void battery_monitor_task(void *pvParameters) {
     TickType_t last_wake_time = xTaskGetTickCount();
-    const TickType_t frequency = pdMS_TO_TICKS(30000);  
+    const TickType_t frequency = pdMS_TO_TICKS(3000);  
 
     while (1) {
         uint16_t battery_pct = 0;
