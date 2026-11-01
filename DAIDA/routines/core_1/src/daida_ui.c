@@ -188,7 +188,7 @@ QueueHandle_t daida_ui_get_queue_handle(void) {
 
 static void battery_monitor_task(void *pvParameters) {
     TickType_t last_wake_time = xTaskGetTickCount();
-    const TickType_t frequency = pdMS_TO_TICKS(3000);  
+    const TickType_t frequency = pdMS_TO_TICKS(30000);  
 
     while (1) {
         uint16_t battery_pct = 0;
