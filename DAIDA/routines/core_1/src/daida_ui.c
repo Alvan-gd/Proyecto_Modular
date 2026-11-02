@@ -128,22 +128,21 @@ esp_err_t daida_ui_init(QueueHandle_t daida_intercore_queue) {
     }
     
     s_ui_queue = daida_intercore_queue;
+    esp_err_t err;
 
-    
-    esp_err_t err = battery_service_init();
+    err = battery_service_init();
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize battery service: %s", esp_err_to_name(err));
         return err;
     }
-        
 
-    //// 1. Initialize the haptic controller
-    //err = haptic_init(&haptic_dev);
-    //if (err != ESP_OK) {
+    // //// 1. Initialize the haptic controller
+    // err = haptic_init(&haptic_dev);
+    // if (err != ESP_OK) {
     //    ESP_LOGE(TAG, "Failed to initialize haptic controller: %s", esp_err_to_name(err));
     //    return err;
-    //}
-//
+    // }
+
     // 2. Initialize the display and graphics system (LVGL)
     err = screen_init(&io_handle, &panel_handle, &disp);
     if (err != ESP_OK) {
