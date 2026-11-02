@@ -16,6 +16,7 @@
 #include "car.h"
 #include "dog.h"
 #include "gunshot.h"
+#include "ambulance.h"
 
 #include "daida.h"
 

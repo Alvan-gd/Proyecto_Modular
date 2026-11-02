@@ -304,6 +304,7 @@ void write_battery_level(uint16_t battery_level) {
 void init_icon_label(void){
     icon_label = lv_label_create(lv_screen_active()); 
     lv_obj_set_pos(icon_label,ICON_X,ICON_Y + ICON_HEIGHT + 10);
+    lv_obj_set_width(icon_label,128);
     lv_obj_set_style_bg_opa(icon_label, LV_OPA_TRANSP, 0);
     lv_obj_add_flag(icon_label, LV_OBJ_FLAG_HIDDEN);
 }
