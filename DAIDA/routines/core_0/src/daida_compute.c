@@ -154,6 +154,7 @@ void task_daida_tinyml_classification(void *pvParameters) {
                         .angle = angle,
                         .audio_classification = audio_classification_result
                     };
+                    ESP_LOGI(TAG, "Evento TinyML -> Ángulo: %.2f°, Clase: %u, Confianza: %.2f", angle, audio_classification_result, confidence);
                     xQueueOverwrite(s_core1_ui_queue, &ui_event);
                 }
             }

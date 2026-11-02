@@ -1,6 +1,10 @@
 #include "battery.h"
 #include "adc_daida.h"
 #include "esp_log.h"
+#include "driver/gpio.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 
 static const char *TAG = "BATTERY_SERVICE";
 static adc_xiao_handle_t s_adc_handle = NULL;
@@ -20,6 +24,14 @@ esp_err_t battery_get_level(uint16_t *battery_pct) {
         return ESP_ERR_INVALID_ARG;
     }
 
+    // 1. FUERZA BRUTA: Resetear el pad y desconectar periféricos digitales
+    gpio_reset_pin(8); // Desvincula el pin de I2S, SPI o LVGL instantáneamente
+    gpio_set_direction(8, GPIO_MODE_DISABLE); // Desactiva buffers de entrada/salida
+    gpio_set_pull_mode(8, GPIO_FLOATING);     // Elimina fugas a tierra o 3.3V
+
+    // 2. Dar tiempo al voltaje físico (capacitor) para estabilizarse a 1.6V
+    vTaskDelay(pdMS_TO_TICKS(15));
+
     int raw_value = 0;
     esp_err_t err = adc_read(s_adc_handle, &raw_value);
     if (err != ESP_OK) {
@@ -29,7 +41,14 @@ esp_err_t battery_get_level(uint16_t *battery_pct) {
     // Convertir lectura cruda a milivoltios reales de la batería
     // V_adc (mV) = (raw * 3300) / 4095
     // V_bat (mV) = V_adc * 2
-    uint32_t v_bat_mv = ((uint32_t)raw_value * 3300 * 2) / 4095;
+    // 1. Calcular el voltaje en el pin del ADC (Referencia ~3100mV para S3 a 12dB)
+    uint32_t v_adc_mv = ((uint32_t)raw_value * 3100) / 4095;
+
+    // 2. Factor de compensación empírico (Sustituye 2.47 por el valor que calculaste)
+    float multiplicador_real = 2;
+    uint32_t v_bat_mv = (uint32_t)(v_adc_mv * multiplicador_real);
+
+    ESP_LOGI(TAG, "ADC Raw: %d | Pin: %lu mV | Bat Calc: %lu mV", raw_value, v_adc_mv, v_bat_mv);
 
     // Definir rangos típicos de Batería LiPo / Li-Ion
     const uint32_t V_MIN_MV = 3300; // 3.3V (0%)

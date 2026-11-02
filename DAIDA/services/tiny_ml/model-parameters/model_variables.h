@@ -47,39 +47,39 @@
 #include "edge-impulse-sdk/classifier/inferencing_engines/engines.h"
 #include "edge-impulse-sdk/classifier/postprocessing/ei_postprocessing_common.h"
 
-const char* ei_classifier_inferencing_categories_1125042_1[] = { "Alerta_sismica", "Background_noise", "Claxon_auto", "Disparos", "Dog_Bark", "Nombre_usuario", "Timbre_casa" };
+const char* ei_classifier_inferencing_categories_1125042_1[] = { "Alerta_sismica", "Ambulancia", "Background_noise", "Claxon_auto", "Nombre_usuario", "Perros", "Timbre_casa" };
 
-ei_dsp_named_axis_t ei_dsp_config_1125042_6_named_axes[] = {
+ei_dsp_named_axis_t ei_dsp_config_1125042_12_named_axes[] = {
     { .name = "Signal", .axis = 0 }
 };
-size_t ei_dsp_config_1125042_6_named_axes_size = 1;
-EI_CLASSIFIER_DSP_AXES_INDEX_TYPE ei_dsp_config_1125042_6_axes[] = { 0 };
-const uint32_t ei_dsp_config_1125042_6_axes_size = 1;
-ei_dsp_config_mfe_t ei_dsp_config_1125042_6 = {
-    6, // uint32_t blockId
+size_t ei_dsp_config_1125042_12_named_axes_size = 1;
+EI_CLASSIFIER_DSP_AXES_INDEX_TYPE ei_dsp_config_1125042_12_axes[] = { 0 };
+const uint32_t ei_dsp_config_1125042_12_axes_size = 1;
+ei_dsp_config_mfe_t ei_dsp_config_1125042_12 = {
+    12, // uint32_t blockId
     4, // int implementationVersion
     1, // int length of axes
-    ei_dsp_config_1125042_6_named_axes, // named axes
-    ei_dsp_config_1125042_6_named_axes_size, // size of the named axes array
+    ei_dsp_config_1125042_12_named_axes, // named axes
+    ei_dsp_config_1125042_12_named_axes_size, // size of the named axes array
     0.016f, // float frame_length
     0.02f, // float frame_stride
     32, // int num_filters
     256, // int fft_length
     300, // int low_frequency
-    0, // int high_frequency
+    8000, // int high_frequency
     101, // int win_size
-    -100 // int noise_floor_db
+    -70 // int noise_floor_db
 };
 
 const uint8_t ei_dsp_blocks_1125042_1_size = 1;
 ei_model_dsp_t ei_dsp_blocks_1125042_1[ei_dsp_blocks_1125042_1_size] = {
-    { // DSP block 6
-        6,
+    { // DSP block 12
+        12,
         1600, // output size
         &extract_mfe_features, // DSP function pointer
-        (void*)&ei_dsp_config_1125042_6, // pointer to config struct
-        ei_dsp_config_1125042_6_axes, // array of offsets into the input stream, one for each axis
-        ei_dsp_config_1125042_6_axes_size, // number of axes
+        (void*)&ei_dsp_config_1125042_12, // pointer to config struct
+        ei_dsp_config_1125042_12_axes, // array of offsets into the input stream, one for each axis
+        ei_dsp_config_1125042_12_axes_size, // number of axes
         1, // version
         nullptr, // factory function
         nullptr, // data normalization config
@@ -108,7 +108,7 @@ ei_learning_block_config_tflite_graph_t ei_learning_block_config_1125042_7 = {
 };
 
 const uint8_t ei_learning_blocks_1125042_1_size = 1;
-const uint32_t ei_learning_block_1125042_7_inputs[1] = { 6 };
+const uint32_t ei_learning_block_1125042_7_inputs[1] = { 12 };
 const uint8_t ei_learning_block_1125042_7_inputs_size = 1;
 const ei_learning_block_t ei_learning_blocks_1125042_1[ei_learning_blocks_1125042_1_size] = {
     {
@@ -150,7 +150,7 @@ const ei_impulse_t impulse_1125042_1 = {
     .project_name = "DAIDA",
     .impulse_id = 1,
     .impulse_name = "Impulse #1",
-    .deploy_version = 4,
+    .deploy_version = 6,
 
     .nn_input_frame_size = 1600,
     .raw_sample_count = 16000,

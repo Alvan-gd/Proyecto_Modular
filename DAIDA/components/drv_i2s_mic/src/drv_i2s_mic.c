@@ -108,8 +108,6 @@ esp_err_t drv_i2s_mic_init(void){
         },
     };
 
-    //i2s_std_cfg.slot_cfg.slot_bit_width = I2S_SLOT_BIT_WIDTH_32BIT; // Configuración de 32 bits por slot para los micrófonos INMP441
-
     // Aplicar configuracion en modo stadar al canal I2S 1 (Esclavo)
     i2s_std_cfg.gpio_cfg.din = I2S_GPIO_DIN_1; // Configuración de pin de datos para el canal I2S 1
 
@@ -129,16 +127,6 @@ esp_err_t drv_i2s_mic_init(void){
         ESP_LOGE(TAG, "Error al inicializar el canal I2S 0 en modo STD: %s", esp_err_to_name(err));
         return err;
     }
-
-    // // --- CIRUGÍA DE SILICIO ---
-    // // 3. Encendemos el buffer de entrada de los pines físicos a nivel de registro 
-    // // sin alterar la salida del Maestro.
-    // PIN_INPUT_ENABLE(GPIO_PIN_MUX_REG[I2S_GPIO_BCLK]);
-    // PIN_INPUT_ENABLE(GPIO_PIN_MUX_REG[I2S_GPIO_WS]);
-
-    // // 4. Enrutamos la señal de esos pines hacia el periférico Esclavo (I2S_1)
-    // esp_rom_gpio_connect_in_signal(I2S_GPIO_BCLK, I2S1I_BCK_IN_IDX, false);
-    // esp_rom_gpio_connect_in_signal(I2S_GPIO_WS,   I2S1I_WS_IN_IDX,  false);
 
 
     /* =============================================================================

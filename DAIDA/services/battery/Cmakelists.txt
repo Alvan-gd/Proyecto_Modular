@@ -1,5 +1,5 @@
 idf_component_register(
     SRCS "src/battery.c"
     INCLUDE_DIRS "include"
-    REQUIRES lcd_st7789 adc
+    REQUIRES lcd_st7789 adc esp_driver_gpio
 )

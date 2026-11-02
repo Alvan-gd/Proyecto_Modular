@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "esp_log.h"
+#include "driver/gpio.h"
 #include "adc_daida.h"
 
 static const char *TAG = "ADC";
@@ -9,6 +10,21 @@ esp_err_t adc_init(adc_xiao_handle_t *out_handle)
     if (out_handle == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
+
+    // // ====================================================================
+    // // INTERVENCIÓN FÍSICA: FORZAR ALTA IMPEDANCIA EN EL PAD (GPIO 8)
+    // // Aislar el pin de la lógica digital para evitar el divisor parásito
+    // // ====================================================================
+    // gpio_set_pull_mode(ADC_XIAO_PIN, GPIO_FLOATING);
+
+    // gpio_config_t io_conf = {
+    //     .pin_bit_mask = (1ULL << ADC_XIAO_PIN),
+    //     .mode = GPIO_MODE_DISABLE,             // Deshabilita I/O digital
+    //     .pull_up_en = GPIO_PULLUP_DISABLE,
+    //     .pull_down_en = GPIO_PULLDOWN_DISABLE,
+    //     .intr_type = GPIO_INTR_DISABLE
+    // };
+    // gpio_config(&io_conf);
 
     // 1. Allocate memory for the device handle
     adc_xiao_handle_t dev = (adc_xiao_handle_t)calloc(1, sizeof(adc_xiao_dev_t));

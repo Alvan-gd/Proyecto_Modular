@@ -5,10 +5,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define DMA_FRAME_NUM 256
+#define DMA_FRAME_NUM 256 
 #define MIC_CHANNELS 4
 
-#define DSP_ENERGY_THRESHOLD 400.0f // Umbral de energía para considerar un evento de sonido válido
+#define DSP_ENERGY_THRESHOLD 2000.0f // Umbral de energía para considerar un evento de sonido válido
 
 typedef struct {
     bool is_valid; // Indica si el resultado es válido
